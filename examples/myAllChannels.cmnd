@@ -1,0 +1,225 @@
+! mu+ mu- production at the LHC
+Beams:idA = 2212	! first incoming beam is a 2212, i.e. a proton.
+Beams:idB = 2212	! second beam is also a proton.
+Beams:eCM = 13000. 	! the cm energy of collisions.
+
+
+Bottomonium:O(3S1)[3S1(1)] = 9.28,4.63,3.54
+Bottomonium:O(3S1)[3S1(8)] = 0.15,0.045,0.075
+Bottomonium:O(3S1)[1S0(8)] = 0.02,0.006,0.01
+Bottomonium:O(3S1)[3P0(8)] = 0.02,0.006,0.01
+ParticleDecays:allowPhotonRadiation = on
+
+###############################################################################
+# process p_p.mu_mu
+WeakSingleBoson:ffbar2gmZ = on
+PhaseSpace:mHatMin = 0.15
+23:mMin = 0.15
+23:mMax = 40
+23:onMode = 0
+23:onIfMatch = -13 13
+
+###############################################################################
+# process p_p.a.mu_mu
+NewGaugeBoson:ffbar2gmZZprime = on
+Zprime:gmZmode = 3
+PhaseSpace:mHatMin = 0.15
+32:onMode = 0
+32:onIfMatch = -13 13
+
+###############################################################################
+# process gm_gm.mu_mu
+PhotonCollision:gmgm2mumu = on
+PhaseSpace:mHatMin = 0.15
+PhaseSpace:pTHatMinDiverge = 0.075
+
+###############################################################################
+# process decays
+SoftQcd:all = on
+
+###############################################################################
+# process showers
+SoftQcd:all = on
+SpaceShower:QEDshowerByQ = off
+SpaceShower:QEDshowerByL = off
+
+###############################################################################
+# process p_p.charmonium
+Charmonium:all = on
+
+###############################################################################
+# process p_p.bottomonium
+Bottomonium:all = on
+
+###############################################################################
+# process p_p.443
+Charmonium:gg2ccbar(3S1)[3S1(1)]g = on,off
+Charmonium:gg2ccbar(3S1)[3S1(8)]g = on,off
+Charmonium:qg2ccbar(3S1)[3S1(8)]q = on,off
+Charmonium:qqbar2ccbar(3S1)[3S1(8)]g = on,off
+Charmonium:gg2ccbar(3S1)[1S0(8)]g = on,off
+Charmonium:qg2ccbar(3S1)[1S0(8)]q = on,off
+Charmonium:qqbar2ccbar(3S1)[1S0(8)]g = on,off
+Charmonium:gg2ccbar(3S1)[3PJ(8)]g = on,off
+Charmonium:qg2ccbar(3S1)[3PJ(8)]q = on,off
+Charmonium:qqbar2ccbar(3S1)[3PJ(8)]g = on,off 
+
+###############################################################################
+# process p_p.100443
+Charmonium:gg2ccbar(3S1)[3S1(1)]g = off,on
+Charmonium:gg2ccbar(3S1)[3S1(8)]g = off,on
+Charmonium:qg2ccbar(3S1)[3S1(8)]q = off,on
+Charmonium:qqbar2ccbar(3S1)[3S1(8)]g = off,on
+Charmonium:gg2ccbar(3S1)[1S0(8)]g = off,on
+Charmonium:qg2ccbar(3S1)[1S0(8)]q = off,on
+Charmonium:qqbar2ccbar(3S1)[1S0(8)]g = off,on
+Charmonium:gg2ccbar(3S1)[3PJ(8)]g = off,on
+Charmonium:qg2ccbar(3S1)[3PJ(8)]q = off,on
+Charmonium:qqbar2ccbar(3S1)[3PJ(8)]g = off,on 
+
+###############################################################################
+# process p_p.30443
+Charmonium:gg2ccbar(3DJ)[3DJ(1)]g = on
+Charmonium:gg2ccbar(3DJ)[3PJ(8)]g = on
+Charmonium:qg2ccbar(3DJ)[3PJ(8)]q = on
+Charmonium:qqbar2ccbar(3DJ)[3PJ(8)]g = on
+
+###############################################################################
+# process p_p.553
+Bottomonium:gg2bbbar(3S1)[3S1(1)]g = on,off,off
+Bottomonium:gg2bbbar(3S1)[3S1(8)]g = on,off,off
+Bottomonium:qg2bbbar(3S1)[3S1(8)]q = on,off,off
+Bottomonium:qqbar2bbbar(3S1)[3S1(8)]g = on,off,off
+Bottomonium:gg2bbbar(3S1)[1S0(8)]g = on,off,off
+Bottomonium:qg2bbbar(3S1)[1S0(8)]q = on,off,off
+Bottomonium:qqbar2bbbar(3S1)[1S0(8)]g = on,off,off
+Bottomonium:gg2bbbar(3S1)[3PJ(8)]g = on,off,off
+Bottomonium:qg2bbbar(3S1)[3PJ(8)]q = on,off,off
+Bottomonium:qqbar2bbbar(3S1)[3PJ(8)]g = on,off,off 
+
+###############################################################################
+# process p_p.100553
+Bottomonium:gg2bbbar(3S1)[3S1(1)]g = off,on,off
+Bottomonium:gg2bbbar(3S1)[3S1(8)]g = off,on,off
+Bottomonium:qg2bbbar(3S1)[3S1(8)]q = off,on,off
+Bottomonium:qqbar2bbbar(3S1)[3S1(8)]g = off,on,off
+Bottomonium:gg2bbbar(3S1)[1S0(8)]g = off,on,off
+Bottomonium:qg2bbbar(3S1)[1S0(8)]q = off,on,off
+Bottomonium:qqbar2bbbar(3S1)[1S0(8)]g = off,on,off
+Bottomonium:gg2bbbar(3S1)[3PJ(8)]g = off,on,off
+Bottomonium:qg2bbbar(3S1)[3PJ(8)]q = off,on,off
+Bottomonium:qqbar2bbbar(3S1)[3PJ(8)]g = off,on,off 
+
+###############################################################################
+# process p_p.200553
+Bottomonium:gg2bbbar(3S1)[3S1(1)]g = off,off,on
+Bottomonium:gg2bbbar(3S1)[3S1(8)]g = off,off,on
+Bottomonium:qg2bbbar(3S1)[3S1(8)]q = off,off,on
+Bottomonium:qqbar2bbbar(3S1)[3S1(8)]g = off,off,on
+Bottomonium:gg2bbbar(3S1)[1S0(8)]g = off,off,on
+Bottomonium:qg2bbbar(3S1)[1S0(8)]q = off,off,on
+Bottomonium:qqbar2bbbar(3S1)[1S0(8)]g = off,off,on
+Bottomonium:gg2bbbar(3S1)[3PJ(8)]g = off,off,on
+Bottomonium:qg2bbbar(3S1)[3PJ(8)]q = off,off,on
+Bottomonium:qqbar2bbbar(3S1)[3PJ(8)]g = off,off,on 
+
+###############################################################################
+# rho0.
+# decay 113[13_13]
+113:oneChannel = 1 0.0000455 0 13 -13                   # PDG.
+# decay 113[111_13_13]
+113:oneChannel = 1 0.00000046 11 111 13 -13             # faessler.99.1.
+# decay 113[221_13_13]
+113:oneChannel = 1 0.000000000070 11 221 13 -13         # faessler.99.1.
+# decay 113[211_211_13_13]
+113:oneChannel = 1 0.00000067 12 211 -211 13 -13        # faessler.99.1.
+# decay 113[111_111_13_13]
+113:oneChannel = 1 0.0000000024 12 111 111 13 -13       # faessler.99.1.
+
+###############################################################################
+# rho+.
+# decay 213[211_13_13]
+213:oneChannel = 1 0.00000046 11 211 13 -13             # faessler.99.1.
+# decay 213[211_111_13_13]
+213:oneChannel = 1 0.00000018 12 211 111 13 -13         # faessler.99.1.
+
+###############################################################################
+# omega.
+# decay 223[13_13]
+223:oneChannel = 1 0.000090 0 13 -13                    # PDG.            
+# decay 223[111_13_13]
+223:oneChannel = 1 0.00013 11 111 13 -13                # PDG.
+# decay 223[221_13_13]
+223:oneChannel = 1 0.0000000018 11 221 13 -13           # faessler.99.1.
+# decay 223[211_211_13_13]
+223:oneChannel = 1 0.000000029 12 211 -211 13 -13       # faessler.99.1.
+# decay 223[111_111_13_13]
+223:oneChannel = 1 0.0000000074 12 111 111 13 -13       # faessler.99.1.
+
+###############################################################################
+# phi.
+# decay 333[13_13]
+333:oneChannel = 1 0.000287 0 13 -13                    # PDG.       
+# decay 333[111_13_13]
+333:oneChannel = 1 0.0000048 11 111 13 -13              # faessler.99.1.
+# decay 333[221_13_13]
+333:oneChannel = 1 0.0000068 11 221 13 -13              # faessler.99.1.
+
+###############################################################################
+# eta.
+# decay 221[13_13]
+221:oneChannel = 1 0.0000058 0 13 -13                   # PDG.
+# decay 221[22_13_13]
+221:oneChannel = 1 0.00031 11 22 13 -13                 # PDG.
+# decay 221[211_211_13_13]
+221:oneChannel = 1 0.000000012 12 211 -211 13 -13       # faessler.99.1.
+
+###############################################################################
+# eta'.
+# decay 331[22_13_13]
+331:oneChannel = 1 0.000108 11 22 13 -13                # PDG.
+# decay 331[211_211_13_13]
+331:oneChannel = 1 0.000020 12 211 -211 13 -13          # faessler.99.1.
+
+###############################################################################
+# rho(1770)0.
+# decay 30113[13_13]
+113:oneChannel = 1 0.0000301671 0 13 -13                # 160109.decays.nb.
+113:m0 = 1.72                                           # PDG.
+113:mWidth = 0.250                                      # PDG.
+
+###############################################################################
+# J/psi.
+# decay 443[13_13]
+443:oneChannel = 1 0.05971 0 13 -13                     # PDG.
+# decay 443[111_13_13]
+443:oneChannel = 1 0.000000101 11 111 13 -13            # fu.12.1.
+# decay 443[221_13_13]
+443:oneChannel = 1 0.00000300 11 221 13 -13             # fu.12.1.
+# decay 443[331_13_13]
+443:oneChannel = 1 0.0000131 11 331 13 -13              # fu.12.1.
+
+###############################################################################
+# psi(2S).
+# decay 100443[13_13]
+100443:oneChannel = 1 0.0079 0 13 -13                   # PDG.
+
+###############################################################################
+# psi(3770).
+# decay 30443[13_13]
+30443:oneChannel = 1 0.00000958 0 13 -13                # 160109.decays.nb.
+
+###############################################################################
+# Upsilon.
+# decay 553[13_13]
+553:oneChannel = 1 0.0248 0 13 -13                      # PDG.
+
+###############################################################################
+# Upsilon(2S).
+# decay 100553[13_13]
+100553:oneChannel = 1 0.0193 0 13 -13                   # PDG.
+
+###############################################################################
+# Upsilon(3S).
+# decay 200553[13_13]
+200553:oneChannel = 1 0.0218 0 13 -13                   # PDG.
