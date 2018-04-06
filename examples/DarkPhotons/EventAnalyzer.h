@@ -34,10 +34,12 @@ namespace DarkPhotons
 
 class EventAnalyzer
 {
-    
 protected:
     // null pointer
 	TH1D* _h = 0;
+
+	// keep track if hist was set
+	bool _kHistSet = 0;
 
 public:
 
@@ -54,6 +56,7 @@ public:
 	void setHist(const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup)
 	{
 		_h = (TH1D*) new TH1D(name, title, nbinsx, xlow, xup);
+		_kHistSet = 1;
 	}
 
 	TH1D* getHist();

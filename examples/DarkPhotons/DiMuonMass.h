@@ -139,6 +139,10 @@ void DiMuonMass::updateLeadingMu(Particle& particle, int index)
 //------------------------------------------------------------------------------
 const void DiMuonMass::analyze(Event& event)
 {
+   if (_kHistSet == 0)
+   {
+      std::cout<<"ERROR! HISTOGRAM NOT SET"<< std::endl;
+   }
    if (_setEtaCut = false)
    {
       std::cout <<"Warning: No Eta Cut Set" << std::endl;

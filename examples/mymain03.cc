@@ -12,6 +12,9 @@
 #include "TLegend.h"
 #include "TAxis.h"
 
+// ROOT for stacking
+#include "THStack.h"
+
 // ROOT, for saving Pythia events as trees in a file.
 #include "TTree.h"
 #include "TFile.h"
@@ -23,6 +26,7 @@
 #include <ROOT/TDataFrame.hxx>
 
 #include "DarkPhotons/DiMuonMass.h" 
+#include "DarkPhotons/MainChannel.h" 
 #include "DarkPhotons/SimpleMass.h"
 
 using namespace Pythia8; // Let Pythia8:: be implicit.
@@ -47,94 +51,186 @@ int main(int argc, char* argv[])
 	T->Branch("event",&event); 
   
 	// Create file on which histogram(s) can be saved.
-	// TFile *outFile = new TFile("dimuonMass.root", "RECREATE");
+	TFile *outFile = new TFile("dimuonMass.root", "RECREATE");
 
 	//Output file to store this info in 
 	// ofstream muon_info; 
 	// muon_info.open("muon_info.dat"); 
- 
-	// Dimuon Mass analysis
-	DiMuonMass mass1;
-	DiMuonMass mass2;
-	DiMuonMass mass3;
-	mass1.setHist("hmass1","M_{#mu#mu} #eta < #infty",100,0,5);
-	mass1.setEtaCut(100000000);
-	mass2.setHist("hmass2","M_{#mu#mu} #eta < 2.4",100,0,5);
-	mass2.setEtaCut(2.4);
-	mass3.setHist("hmass3","M_{#mu#mu} #eta < 1.5",100,0,5);
-	mass3.setEtaCut(1.5);
-
-	TH1D* hLeadingMuMo = new TH1D("hLeadMuMo", "Leading Mu Mother", 1000,0,1000);
-	TH1D* hLeadingMuBMo = new TH1D("hLeadMuBMo", "Leading MuB Mother", 1000,0,1000);
 
 	bool hasPL = pythia.flag("PartonLevel:all");
 
 	// List of particle decay channels
-	// string rho0Channels[5] = {"113:oneChannel = 1 0.0000455 0 13 -13",
-	// 						 "113:addChannel = 1 0.00000046 11 111 13 -13",
-	// 						 "113:addChannel = 1 0.000000000070 11 221 13 -13",
-	// 						 "113:addChannel = 1 0.00000067 12 211 -211 13 -13",
-	// 						 "113:addChannel = 1 0.0000000024 12 111 111 13 -13"};
-	// string omegaChannels[5] = {"223:oneChannel = 1 0.000090 0 13 -13",
-	// 						  "223:addChannel = 1 0.00013 11 111 13 -13",
-	// 						  "223:addChannel = 1 0.0000000018 11 221 13 -13",
-	// 						  "223:addChannel = 1 0.000000029 12 211 -211 13 -13",
-	// 						  "223:addChannel = 1 0.0000000074 12 111 111 13 -13"};
+	string sRho[5] = {"113:oneChannel = 1 0.0000455 0 13 -13",
+							 "113:addChannel = 1 0.00000046 11 111 13 -13",
+							 "113:addChannel = 1 0.000000000070 11 221 13 -13",
+							 "113:addChannel = 1 0.00000067 12 211 -211 13 -13",
+							 "113:addChannel = 1 0.0000000024 12 111 111 13 -13"};
 
+	string sRhoPlus[2] = {"213:oneChannel = 1 0.00000046 11 211 13 -13",
+					  "213:oneChannel = 1 0.00000018 12 211 111 13 -13"};
+
+	string sOmega[5] = {"223:oneChannel = 1 0.000090 0 13 -13",
+							  "223:addChannel = 1 0.00013 11 111 13 -13",
+							  "223:addChannel = 1 0.0000000018 11 221 13 -13",
+							  "223:addChannel = 1 0.000000029 12 211 -211 13 -13",
+							  "223:addChannel = 1 0.0000000074 12 111 111 13 -13"};
+
+	string sPhi[3] = {"333:oneChannel = 1 0.000287 0 13 -13",
+					 "333:oneChannel = 1 0.0000048 11 111 13 -13",
+					 "333:oneChannel = 1 0.0000068 11 221 13 -13"};
+
+	string sEta[3] = {"221:oneChannel = 1 0.0000058 0 13 -13",
+					 "221:oneChannel = 1 0.00031 11 22 13 -13",
+					 "221:oneChannel = 1 0.000000012 12 211 -211 13 -13"};
+
+	string sEtaPrime[2] = {"331:oneChannel = 1 0.000108 11 22 13 -13",
+						  "331:oneChannel = 1 0.000020 12 211 -211 13 -13"};
+
+	string sRho1770[3] = {"113:oneChannel = 1 0.0000301671 0 13 -13",
+						  "113:m0 = 1.72",
+						  "113:mWidth = 0.250"};
+
+	string sJPsi[4] = {"443:oneChannel = 1 0.05971 0 13 -13 ",
+					  "443:oneChannel = 1 0.000000101 11 111 13 -13",
+					  "443:oneChannel = 1 0.00000300 11 221 13 -13",
+					  "443:oneChannel = 1 0.0000131 11 331 13 -13"};
+
+	string sPsi2S[1] = {"100443:oneChannel = 1 0.0079 0 13 -13"};
+
+	string sPsi3770[1] = {"30443:oneChannel = 1 0.00000958 0 13 -13"};
+
+	string sUpsilon2S[1] = {"100553:oneChannel = 1 0.0193 0 13 -13"};
 	
-	// Begin event loop. Generate event; skip if generation aborted.
-  	for (int iEvent = 0; iEvent < 10000; ++iEvent)
-  	{
-  		// std::cout<<"Event no. "<< iEvent <<std::endl;
-    	if (!pythia.next()) continue; 
-	    // Fill the pythia event into the TTree.
-	    // Warning: the files will rapidly become large if all events
-	    // are saved. In some cases it may be convenient to do some
-	    // processing of events and only save those that appear
-	    // interesting for future analyses.
-	    // For now dont bother to fill events until i understand what is happening
-	    // T->Fill(); 
-        mass1.analyze(pythia.event); 
-        mass2.analyze(pythia.event); 
-        mass3.analyze(pythia.event); 
+	string sUpsilon3S[1] = {"200553:oneChannel = 1 0.0218 0 13 -13"};
 
-        hLeadingMuMo->Fill(mass3.getLeadMuMother());
-        hLeadingMuBMo->Fill(mass3.getLeadMuBarMother());
-	} 
+	MainChannel rhoChannel;
+	MainChannel rhoPlusChannel;
+	MainChannel omegaChannel;
+	MainChannel phiChannel;
+	MainChannel etaChannel;
+	MainChannel etaPrimeChannel;
+	// MainChannel rho1770Channel;
+	MainChannel jpsiChannel;
+	MainChannel psi2SChannel;
+	MainChannel psi3770Channel;
+	MainChannel upsilon2SChannel;
+	MainChannel upsilon3SChannel;
 
-	TCanvas* c8 = new TCanvas();
-	mass1.getHist()->SetLineColor(kBlack);
-	mass2.getHist()->SetLineColor(kBlue);
-	mass3.getHist()->SetLineColor(kRed);
-	mass1.getHist()->SetTitle("M_{#mu#mu}");
-	mass1.getHist()->Draw();
-	mass3.getHist()->Draw("same");
-	mass2.getHist()->Draw("same"); 
- 	TLegend *legend3 = new TLegend(.60, .60, .8,.8);
-	legend3->AddEntry(mass1.getHist(), "|#eta| < #infty" ,"l" );
-	legend3->AddEntry(mass2.getHist(), "|#eta| < 2.4" , "l");
-	legend3->AddEntry(mass3.getHist(), "|#eta| < 1.5" , "l"); 
-	legend3->Draw("same");	
- 
-	// Statistics on event generation
-	pythia.stat(); 
- 
-	//  Write tree.
-  	// T->Print();
-	// T->Write(); 
-	// delete file; 
-  
-	// Show histogram. Possibility to close it.
-	// std::cout << "\nDouble click on the histogram window to quit.\n";
-	// gPad->WaitPrimitive();
+	int nbins = 150;
+	double xmin = 0;
+	double xmax = 1.5;
 
-	// Save histogram on file and close file.
-	// h_dimuon->Write();
-	// delete outFile;
-// 
-	std::cout<<"N Match = " << mass3.getNMatch() << std::endl;
-	TCanvas* c1 = new TCanvas();
-	hLeadingMuMo->Draw();
+	rhoChannel.getAnalysis()->setHist("hRho", "M_{#mu#mu}(#rho#rightarrow#mu#mu)",nbins,xmin,xmax);
+	rhoPlusChannel.getAnalysis()->setHist("hRhoPlus", "M_{#mu#mu}(#rho^{+}#rightarrow#mu#mu)",nbins,xmin,xmax);
+	omegaChannel.getAnalysis()->setHist("hOmega", "M_{#mu#mu}(#omega#rightarrow#mu#mu)",nbins,xmin,xmax);
+	phiChannel.getAnalysis()->setHist("hPhi", "M_{#mu#mu}(#phi#rightarrow#mu#mu)",nbins,xmin,xmax);
+	etaChannel.getAnalysis()->setHist("hEta", "M_{#mu#mu}(#eta#rightarrow#mu#mu)",nbins,xmin,xmax);
+	etaPrimeChannel.getAnalysis()->setHist("hEtaPrime", "M_{#mu#mu}(#eta^{#prime}#rightarrow#mu#mu)",nbins,xmin,xmax);
+	// rho1770Channel.getAnalysis()->setHist("hRho1770", "M_{#mu#mu}(#rho(1770)#rightarrow#mu#mu)",nbins,xmin,xmax);
+	jpsiChannel.getAnalysis()->setHist("hPsi", "M_{#mu#mu}(J/#Psi#rightarrow#mu#mu)",nbins,xmin,xmax);
+	psi2SChannel.getAnalysis()->setHist("hPsi2S", "M_{#mu#mu}(#Psi(2S)#rightarrow#mu#mu)",nbins,xmin,xmax);
+	psi3770Channel.getAnalysis()->setHist("hPsi3770", "M_{#mu#mu}(#Psi(3770)#rightarrow#mu#mu)",nbins,xmin,xmax);
+	upsilon2SChannel.getAnalysis()->setHist("hUpsilon2S", "M_{#mu#mu}(#Upsilon(2S)#rightarrow#mu#mu)",nbins,xmin,xmax);
+	upsilon3SChannel.getAnalysis()->setHist("hUpsilon3S", "M_{#mu#mu}(#Upsilon(3S)#rightarrow#mu#mu)",nbins,xmin,xmax);
+
+	rhoChannel.addChannels(sRho,1);
+	rhoPlusChannel.addChannels(sRhoPlus,1);
+	omegaChannel.addChannels(sOmega,1);
+	phiChannel.addChannels(sPhi,1);
+	etaChannel.addChannels(sEta,1);
+	etaPrimeChannel.addChannels(sEtaPrime,1);
+	// rho1770Channel.addChannels(sRho1770,1);
+	jpsiChannel.addChannels(sJPsi,1);
+	psi2SChannel.addChannels(sPsi2S,1);
+	psi3770Channel.addChannels(sPsi3770,1);
+	upsilon2SChannel.addChannels(sUpsilon2S,1);
+	upsilon3SChannel.addChannels(sUpsilon3S,1);
+
+	int nEvents = 10000;
+	rhoChannel.generateChannel(nEvents);
+	rhoPlusChannel.generateChannel(nEvents);
+	omegaChannel.generateChannel(nEvents);
+	phiChannel.generateChannel(nEvents);
+	etaChannel.generateChannel(nEvents);
+	etaPrimeChannel.generateChannel(nEvents);
+	// rho1770Channel.generateChannel(nEvents);
+	jpsiChannel.generateChannel(nEvents);
+	psi2SChannel.generateChannel(nEvents);
+	psi3770Channel.generateChannel(nEvents);
+	upsilon2SChannel.generateChannel(nEvents);
+	upsilon3SChannel.generateChannel(nEvents);
+
+	TH1D* hRho = rhoChannel.getAnalysis()->getHist();
+	hRho->SetFillColor(kRed);
+	TH1D* hRhoPlus = rhoPlusChannel.getAnalysis()->getHist();
+	hRhoPlus->SetFillColor(kRed+2);
+	TH1D* hOmega = omegaChannel.getAnalysis()->getHist();
+	hOmega->SetFillColor(kMagenta);
+	TH1D* hPhi = phiChannel.getAnalysis()->getHist();
+	hPhi->SetFillColor(kViolet);
+	TH1D* hEta = etaChannel.getAnalysis()->getHist();
+	hEta->SetFillColor(kBlue);
+	TH1D* hEtaPrime = etaPrimeChannel.getAnalysis()->getHist();
+	hEtaPrime->SetFillColor(kBlue+2);
+	// TH1D* hRho1770 = rho1770Channel.getAnalysis()->getHist();
+	// hRho1770->SetFillColor(kRed-3);
+	TH1D* hJPsi = jpsiChannel.getAnalysis()->getHist();
+	hJPsi->SetFillColor(kCyan);
+	TH1D* hPsi2S = psi2SChannel.getAnalysis()->getHist();
+	hPsi2S->SetFillColor(kTeal);
+	TH1D* hPsi3770 = psi3770Channel.getAnalysis()->getHist();
+	hPsi3770->SetFillColor(kTeal+3);
+	TH1D* hUpsilon2S = upsilon2SChannel.getAnalysis()->getHist();
+	hUpsilon2S->SetFillColor(kGreen);
+	TH1D* hUpsilon3S = upsilon3SChannel.getAnalysis()->getHist();
+	hUpsilon3S->SetFillColor(kGreen+3);
+	
+	hRho->Write();
+	hRhoPlus->Write();
+	hOmega->Write();
+	hPhi->Write();
+	hEta->Write();
+	hEtaPrime->Write();
+	// hRho1770->Write();
+	hJPsi->Write();
+	hPsi2S->Write();
+	hPsi3770->Write();
+	hUpsilon2S->Write();
+	hUpsilon3S->Write();
+
+	THStack* hs = new THStack("hs", "M_{#mu#mu} All Channels");
+	hs->Add(hRho);
+	hs->Add(hRhoPlus);
+	hs->Add(hOmega);
+	hs->Add(hPhi);
+	hs->Add(hEta);
+	hs->Add(hEtaPrime);
+	// hs->Add(hRho1770);
+	hs->Add(hJPsi);
+	hs->Add(hPsi2S);
+	hs->Add(hPsi3770);
+	hs->Add(hUpsilon2S);
+	hs->Add(hUpsilon3S);
+
+	TLegend *legend = new TLegend(.60, .60, .8,.8);
+	legend->AddEntry(hRho,"#rho","f");
+	legend->AddEntry(hRhoPlus,"#rho^{+}","f");
+	legend->AddEntry(hOmega,"#Omega","f");
+	legend->AddEntry(hPhi,"#Phi","f");
+	legend->AddEntry(hEta,"#eta","f");
+	legend->AddEntry(hEtaPrime,"#eta^{#prime}","f");
+	// legend->AddEntry(hRho1770,"#hRho(1770)","f");
+	legend->AddEntry(hJPsi,"J/#Psi","f");
+	legend->AddEntry(hPsi2S,"#Psi(2S)","f");
+	legend->AddEntry(hPsi3770,"#Psi(3370)","f");
+	legend->AddEntry(hUpsilon2S,"#Upsilon(2S)","f");
+	legend->AddEntry(hUpsilon3S,"#Upsilon(3S)","f");
+
+	hs->Write("my_stack");
+	legend->Write("my_leg");
+
+
+	delete outFile;
 
 	TCanvas* c2 = new TCanvas(); 
 	gPad->WaitPrimitive();
