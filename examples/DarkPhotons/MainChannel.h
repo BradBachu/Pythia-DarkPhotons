@@ -61,6 +61,14 @@ public:
 		_dimumass.setEtaCut(1.5);
 	};
 
+	// constructor
+	MainChannel(string channels[], int size, double weight)
+	{
+		_pythia.readFile("/home/bbachu/Software/pythia8230/examples/mymain03.cmnd");
+		_dimumass.setEtaCut(1.5);
+		this->addChannels(channels,size,weight);
+	};
+
 	// add all decay channels to pythia generation
 	void addChannels(string channels[], int size, double weight = 1);
 

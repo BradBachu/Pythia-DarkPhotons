@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 	T->Branch("event",&event); 
   
 	// Create file on which histogram(s) can be saved.
-	TFile *outFile = new TFile("dimuonMass.root", "RECREATE");
+	TFile *outFile = new TFile("DELETEME.root", "RECREATE");
 
 	//Output file to store this info in 
 	// ofstream muon_info; 
@@ -61,39 +61,39 @@ int main(int argc, char* argv[])
 
 	// List of particle decay channels
 	string sRho[5] = {"113:oneChannel = 1 0.0000455 0 13 -13",
-							 "113:addChannel = 1 0.00000046 11 111 13 -13",
-							 "113:addChannel = 1 0.000000000070 11 221 13 -13",
-							 "113:addChannel = 1 0.00000067 12 211 -211 13 -13",
-							 "113:addChannel = 1 0.0000000024 12 111 111 13 -13"};
+					  "113:addChannel = 1 0.00000046 11 111 13 -13",
+					  "113:addChannel = 1 0.000000000070 11 221 13 -13",
+					  "113:addChannel = 1 0.00000067 12 211 -211 13 -13",
+					  "113:addChannel = 1 0.0000000024 12 111 111 13 -13"};
 
 	string sRhoPlus[2] = {"213:oneChannel = 1 0.00000046 11 211 13 -13",
-					  "213:oneChannel = 1 0.00000018 12 211 111 13 -13"};
+						  "213:addChannel = 1 0.00000018 12 211 111 13 -13"};
 
 	string sOmega[5] = {"223:oneChannel = 1 0.000090 0 13 -13",
-							  "223:addChannel = 1 0.00013 11 111 13 -13",
-							  "223:addChannel = 1 0.0000000018 11 221 13 -13",
-							  "223:addChannel = 1 0.000000029 12 211 -211 13 -13",
-							  "223:addChannel = 1 0.0000000074 12 111 111 13 -13"};
+					    "223:addChannel = 1 0.00013 11 111 13 -13",
+					    "223:addChannel = 1 0.0000000018 11 221 13 -13",
+					    "223:addChannel = 1 0.000000029 12 211 -211 13 -13",
+					    "223:addChannel = 1 0.0000000074 12 111 111 13 -13"};
 
 	string sPhi[3] = {"333:oneChannel = 1 0.000287 0 13 -13",
-					 "333:oneChannel = 1 0.0000048 11 111 13 -13",
-					 "333:oneChannel = 1 0.0000068 11 221 13 -13"};
+					  "333:addChannel = 1 0.0000048 11 111 13 -13",
+					  "333:addChannel = 1 0.0000068 11 221 13 -13"};
 
 	string sEta[3] = {"221:oneChannel = 1 0.0000058 0 13 -13",
-					 "221:oneChannel = 1 0.00031 11 22 13 -13",
-					 "221:oneChannel = 1 0.000000012 12 211 -211 13 -13"};
+					  "221:addChannel = 1 0.00031 11 22 13 -13",
+					  "221:addChannel = 1 0.000000012 12 211 -211 13 -13"};
 
 	string sEtaPrime[2] = {"331:oneChannel = 1 0.000108 11 22 13 -13",
-						  "331:oneChannel = 1 0.000020 12 211 -211 13 -13"};
+						   "331:addChannel = 1 0.000020 12 211 -211 13 -13"};
 
 	string sRho1770[3] = {"113:oneChannel = 1 0.0000301671 0 13 -13",
 						  "113:m0 = 1.72",
 						  "113:mWidth = 0.250"};
 
 	string sJPsi[4] = {"443:oneChannel = 1 0.05971 0 13 -13 ",
-					  "443:oneChannel = 1 0.000000101 11 111 13 -13",
-					  "443:oneChannel = 1 0.00000300 11 221 13 -13",
-					  "443:oneChannel = 1 0.0000131 11 331 13 -13"};
+					   "443:addChannel = 1 0.000000101 11 111 13 -13",
+					   "443:addChannel = 1 0.00000300 11 221 13 -13",
+					   "443:addChannel = 1 0.0000131 11 331 13 -13"};
 
 	string sPsi2S[1] = {"100443:oneChannel = 1 0.0079 0 13 -13"};
 
@@ -103,26 +103,28 @@ int main(int argc, char* argv[])
 	
 	string sUpsilon3S[1] = {"200553:oneChannel = 1 0.0218 0 13 -13"};
 
-	MainChannel rhoChannel;
-	MainChannel rhoPlusChannel;
-	MainChannel omegaChannel;
-	MainChannel phiChannel;
-	MainChannel etaChannel;
-	MainChannel etaPrimeChannel;
-	// MainChannel rho1770Channel;
-	MainChannel jpsiChannel;
-	MainChannel psi2SChannel;
-	MainChannel psi3770Channel;
-	MainChannel upsilon2SChannel;
-	MainChannel upsilon3SChannel;
+	MainChannel rhoChannel(sRho,5,1);
+	MainChannel rhoPlusChannel(sRhoPlus,2,1);
+	// MainChannel omegaChannel(sOmega,5,1);
+	// MainChannel omegaChannel;
+	// omegaChannel.addChannels(sOmega,5,1);
+	MainChannel phiChannel(sPhi,3,1);
+	MainChannel etaChannel(sEta,3,1);
+	MainChannel etaPrimeChannel(sEtaPrime,2,1);
+	// MainChannel rho1770Channel(sRho1770,3,1);
+	MainChannel jpsiChannel(sJPsi,4,1);
+	MainChannel psi2SChannel(sPsi2S,1,1);
+	MainChannel psi3770Channel(sPsi3770,1,1);
+	MainChannel upsilon2SChannel(sUpsilon2S,1,1);
+	MainChannel upsilon3SChannel(sUpsilon3S,1,1);
 
-	int nbins = 150;
+	int nbins = 200;
 	double xmin = 0;
-	double xmax = 1.5;
+	double xmax = 8;
 
 	rhoChannel.getAnalysis()->setHist("hRho", "M_{#mu#mu}(#rho#rightarrow#mu#mu)",nbins,xmin,xmax);
 	rhoPlusChannel.getAnalysis()->setHist("hRhoPlus", "M_{#mu#mu}(#rho^{+}#rightarrow#mu#mu)",nbins,xmin,xmax);
-	omegaChannel.getAnalysis()->setHist("hOmega", "M_{#mu#mu}(#omega#rightarrow#mu#mu)",nbins,xmin,xmax);
+	// omegaChannel.getAnalysis()->setHist("hOmega", "M_{#mu#mu}(#omega#rightarrow#mu#mu)",nbins,xmin,xmax);
 	phiChannel.getAnalysis()->setHist("hPhi", "M_{#mu#mu}(#phi#rightarrow#mu#mu)",nbins,xmin,xmax);
 	etaChannel.getAnalysis()->setHist("hEta", "M_{#mu#mu}(#eta#rightarrow#mu#mu)",nbins,xmin,xmax);
 	etaPrimeChannel.getAnalysis()->setHist("hEtaPrime", "M_{#mu#mu}(#eta^{#prime}#rightarrow#mu#mu)",nbins,xmin,xmax);
@@ -133,23 +135,10 @@ int main(int argc, char* argv[])
 	upsilon2SChannel.getAnalysis()->setHist("hUpsilon2S", "M_{#mu#mu}(#Upsilon(2S)#rightarrow#mu#mu)",nbins,xmin,xmax);
 	upsilon3SChannel.getAnalysis()->setHist("hUpsilon3S", "M_{#mu#mu}(#Upsilon(3S)#rightarrow#mu#mu)",nbins,xmin,xmax);
 
-	rhoChannel.addChannels(sRho,1);
-	rhoPlusChannel.addChannels(sRhoPlus,1);
-	omegaChannel.addChannels(sOmega,1);
-	phiChannel.addChannels(sPhi,1);
-	etaChannel.addChannels(sEta,1);
-	etaPrimeChannel.addChannels(sEtaPrime,1);
-	// rho1770Channel.addChannels(sRho1770,1);
-	jpsiChannel.addChannels(sJPsi,1);
-	psi2SChannel.addChannels(sPsi2S,1);
-	psi3770Channel.addChannels(sPsi3770,1);
-	upsilon2SChannel.addChannels(sUpsilon2S,1);
-	upsilon3SChannel.addChannels(sUpsilon3S,1);
-
 	int nEvents = 10000;
 	rhoChannel.generateChannel(nEvents);
 	rhoPlusChannel.generateChannel(nEvents);
-	omegaChannel.generateChannel(nEvents);
+	// omegaChannel.generateChannel(nEvents);
 	phiChannel.generateChannel(nEvents);
 	etaChannel.generateChannel(nEvents);
 	etaPrimeChannel.generateChannel(nEvents);
@@ -164,8 +153,8 @@ int main(int argc, char* argv[])
 	hRho->SetFillColor(kRed);
 	TH1D* hRhoPlus = rhoPlusChannel.getAnalysis()->getHist();
 	hRhoPlus->SetFillColor(kRed+2);
-	TH1D* hOmega = omegaChannel.getAnalysis()->getHist();
-	hOmega->SetFillColor(kMagenta);
+	// TH1D* hOmega = omegaChannel.getAnalysis()->getHist();
+	// hOmega->SetFillColor(kMagenta);
 	TH1D* hPhi = phiChannel.getAnalysis()->getHist();
 	hPhi->SetFillColor(kViolet);
 	TH1D* hEta = etaChannel.getAnalysis()->getHist();
@@ -187,7 +176,7 @@ int main(int argc, char* argv[])
 	
 	hRho->Write();
 	hRhoPlus->Write();
-	hOmega->Write();
+	// hOmega->Write();
 	hPhi->Write();
 	hEta->Write();
 	hEtaPrime->Write();
@@ -201,7 +190,7 @@ int main(int argc, char* argv[])
 	THStack* hs = new THStack("hs", "M_{#mu#mu} All Channels");
 	hs->Add(hRho);
 	hs->Add(hRhoPlus);
-	hs->Add(hOmega);
+	// hs->Add(hOmega);
 	hs->Add(hPhi);
 	hs->Add(hEta);
 	hs->Add(hEtaPrime);
@@ -215,7 +204,7 @@ int main(int argc, char* argv[])
 	TLegend *legend = new TLegend(.60, .60, .8,.8);
 	legend->AddEntry(hRho,"#rho","f");
 	legend->AddEntry(hRhoPlus,"#rho^{+}","f");
-	legend->AddEntry(hOmega,"#Omega","f");
+	// legend->AddEntry(hOmega,"#Omega","f");
 	legend->AddEntry(hPhi,"#Phi","f");
 	legend->AddEntry(hEta,"#eta","f");
 	legend->AddEntry(hEtaPrime,"#eta^{#prime}","f");
@@ -228,7 +217,6 @@ int main(int argc, char* argv[])
 
 	hs->Write("my_stack");
 	legend->Write("my_leg");
-
 
 	delete outFile;
 
