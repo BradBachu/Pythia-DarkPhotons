@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 
 	MainChannel rhoChannel(sRho,5,1);
 	MainChannel rhoPlusChannel(sRhoPlus,2,1);
-	// MainChannel omegaChannel(sOmega,5,1);
+	MainChannel omegaChannel(sOmega,5,1);
 	// MainChannel omegaChannel;
 	// omegaChannel.addChannels(sOmega,5,1);
 	MainChannel phiChannel(sPhi,3,1);
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 
 	rhoChannel.getAnalysis()->setHist("hRho", "M_{#mu#mu}(#rho#rightarrow#mu#mu)",nbins,xmin,xmax);
 	rhoPlusChannel.getAnalysis()->setHist("hRhoPlus", "M_{#mu#mu}(#rho^{+}#rightarrow#mu#mu)",nbins,xmin,xmax);
-	// omegaChannel.getAnalysis()->setHist("hOmega", "M_{#mu#mu}(#omega#rightarrow#mu#mu)",nbins,xmin,xmax);
+	omegaChannel.getAnalysis()->setHist("hOmega", "M_{#mu#mu}(#omega#rightarrow#mu#mu)",nbins,xmin,xmax);
 	phiChannel.getAnalysis()->setHist("hPhi", "M_{#mu#mu}(#phi#rightarrow#mu#mu)",nbins,xmin,xmax);
 	etaChannel.getAnalysis()->setHist("hEta", "M_{#mu#mu}(#eta#rightarrow#mu#mu)",nbins,xmin,xmax);
 	etaPrimeChannel.getAnalysis()->setHist("hEtaPrime", "M_{#mu#mu}(#eta^{#prime}#rightarrow#mu#mu)",nbins,xmin,xmax);
@@ -135,10 +135,10 @@ int main(int argc, char* argv[])
 	upsilon2SChannel.getAnalysis()->setHist("hUpsilon2S", "M_{#mu#mu}(#Upsilon(2S)#rightarrow#mu#mu)",nbins,xmin,xmax);
 	upsilon3SChannel.getAnalysis()->setHist("hUpsilon3S", "M_{#mu#mu}(#Upsilon(3S)#rightarrow#mu#mu)",nbins,xmin,xmax);
 
-	int nEvents = 10000;
+	int nEvents = 1000;
 	rhoChannel.generateChannel(nEvents);
 	rhoPlusChannel.generateChannel(nEvents);
-	// omegaChannel.generateChannel(nEvents);
+	omegaChannel.generateChannel(nEvents);
 	phiChannel.generateChannel(nEvents);
 	etaChannel.generateChannel(nEvents);
 	etaPrimeChannel.generateChannel(nEvents);
@@ -153,8 +153,8 @@ int main(int argc, char* argv[])
 	hRho->SetFillColor(kRed);
 	TH1D* hRhoPlus = rhoPlusChannel.getAnalysis()->getHist();
 	hRhoPlus->SetFillColor(kRed+2);
-	// TH1D* hOmega = omegaChannel.getAnalysis()->getHist();
-	// hOmega->SetFillColor(kMagenta);
+	TH1D* hOmega = omegaChannel.getAnalysis()->getHist();
+	hOmega->SetFillColor(kMagenta);
 	TH1D* hPhi = phiChannel.getAnalysis()->getHist();
 	hPhi->SetFillColor(kViolet);
 	TH1D* hEta = etaChannel.getAnalysis()->getHist();
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 	
 	hRho->Write();
 	hRhoPlus->Write();
-	// hOmega->Write();
+	hOmega->Write();
 	hPhi->Write();
 	hEta->Write();
 	hEtaPrime->Write();
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
 	THStack* hs = new THStack("hs", "M_{#mu#mu} All Channels");
 	hs->Add(hRho);
 	hs->Add(hRhoPlus);
-	// hs->Add(hOmega);
+	hs->Add(hOmega);
 	hs->Add(hPhi);
 	hs->Add(hEta);
 	hs->Add(hEtaPrime);
@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
 	TLegend *legend = new TLegend(.60, .60, .8,.8);
 	legend->AddEntry(hRho,"#rho","f");
 	legend->AddEntry(hRhoPlus,"#rho^{+}","f");
-	// legend->AddEntry(hOmega,"#Omega","f");
+	legend->AddEntry(hOmega,"#Omega","f");
 	legend->AddEntry(hPhi,"#Phi","f");
 	legend->AddEntry(hEta,"#eta","f");
 	legend->AddEntry(hEtaPrime,"#eta^{#prime}","f");
