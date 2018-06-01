@@ -36,27 +36,33 @@ class DiMuonMass : public EventAnalyzer
 {
 private:
 
-   double _leadingMuPt = 0;
+   double _leadingMuPt = 0.0;
    
-   double _leadingMuBarPt = 0;
+   double _leadingMuBarPt = 0.0;
 
+   // Index of leading Mu
    int _leadingMuI = 0;
    
+   // Index of leading MuBar
    int _leadingMuBarI = 0;
 
    int _leadingMuMother =0;
 
    int _leadingMuBarMother =0;
 
-   double _dimumass = 0;
+   double _dimumass = 0.0;
 
-   double _etaCut = 0;
+   double _etaCut = 0.0;
+
+   double _pTCut = 0.5;
 
    bool _setEtaCut = false;
 
    const bool _muOutDet(Particle& particle);
 
    int _nMatch = 0;
+
+   const bool _passedPtCut(Particle& particle);
 
 
 public:
@@ -78,7 +84,12 @@ public:
       _etaCut = etaCut;
       _setEtaCut = true;
    }
-   
+
+   void setPtCut(double pTCut)
+   {
+      _pTCut = pTCut;
+   }
+
    int getLeadMuMother()
    {
       return _leadingMuMother;
@@ -96,11 +107,11 @@ public:
 
 void DiMuonMass::initialize()
 {
-   _leadingMuPt = 0;
-   _leadingMuBarPt = 0;
+   _leadingMuPt = 0.;
+   _leadingMuBarPt = 0.;
    _leadingMuI = 0;
    _leadingMuBarI = 0;
-   _dimumass = 0;
+   _dimumass = 0.;
 }
 
 //------------------------------------------------------------------------------
@@ -154,13 +165,17 @@ const void DiMuonMass::analyze(Event& event)
    {
       if (abs(event[i].id())!=13) continue; // if particle is not mu skip
       if (_muOutDet(event[i]) == true) continue; // if mu out detector skip
-      // std::cout << "Muon in detector" << std::endl;
+      if (_passedPtCut(event[i]) == false) continue; // if mu.pT() <= pTCut skip
+      // if passed eta and pT cut, update leading mu pT
       this->updateLeadingMu(event[i],i);
    }
+   // if < 2 good opposite sign muons are found
+   // fill with -1 (so that it does not affect distribution)
    if ((_leadingMuPt==0)||(_leadingMuBarPt ==0))
    {
       _dimumass = -1;
    }
+   // else combine 4 vectors and get mass
    else
    {
       Vec4 v1 = event[_leadingMuI].p();
@@ -173,7 +188,6 @@ const void DiMuonMass::analyze(Event& event)
       // if (event[_leadingMuI].mother1() != event[_leadingMuBarI].mother1()) {++_nMatch; _dimumass =  -1;}
    }
    _h->Fill(_dimumass);
-
 }
 
 //------------------------------------------------------------------------------c
@@ -192,16 +206,26 @@ const bool DiMuonMass::_muOutDet(Particle& particle)
 }
 
 //------------------------------------------------------------------------------c
+const bool DiMuonMass::_passedPtCut(Particle& particle)
+{
+   if (particle.pT() > _pTCut)
+   {
+      return true; 
+   }
+   else
+   {
+      return false;
+   }
+}
+
+//------------------------------------------------------------------------------c
 const int DiMuonMass::getNMatch()
 {
    return _nMatch;
 }
 
-
-
 } // end namespace DarkPhotons
 
 } // end namespace Pythia8
 
-
-#endif //DarkPhotons_dimuonmass_H
+#endif //DarkPhotons_dimuonmass_
