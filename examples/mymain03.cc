@@ -39,16 +39,16 @@ int main(int argc, char* argv[])
 	TApplication theApp("hist", &argc, argv);
 	
 	// Set up generation
-	Pythia pythia;
-	pythia.readFile("/home/bbachu/Software/pythia8230/examples/mymain03.cmnd");
+	// Pythia pythia;
+	// pythia.readFile("/home/bbachu/Software/pythia8230/examples/mymain03.cmnd");
 
-	pythia.init(); // Initialize; incoming pp beams is default.
+	// pythia.init(); // Initialize; incoming pp beams is default.
 
 	// Set up the ROOT TFile and TTree.
  	// TFile *file = TFile::Open("dimuons.root","recreate");
-	Event *event = &pythia.event;  
-	TTree *T = new TTree("T","ev1 Tree");
-	T->Branch("event",&event); 
+	// Event *event = &pythia.event;  
+	// TTree *T = new TTree("T","ev1 Tree");
+	// T->Branch("event",&event); 
   
 	// Create file on which histogram(s) can be saved.
 	TFile *outFile = new TFile("DELETEME.root", "RECREATE");
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 	// ofstream muon_info; 
 	// muon_info.open("muon_info.dat"); 
 
-	bool hasPL = pythia.flag("PartonLevel:all");
+	// bool hasPL = pythia.flag("PartonLevel:all");
 
 	// List of particle decay channels
 	string sRho[5] = {"113:oneChannel = 1 0.0000455 0 13 -13",
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
 	upsilon2SChannel.getAnalysis()->setHist("hUpsilon2S", "M_{#mu#mu}(#Upsilon(2S)#rightarrow#mu#mu)",nbins,xmin,xmax);
 	upsilon3SChannel.getAnalysis()->setHist("hUpsilon3S", "M_{#mu#mu}(#Upsilon(3S)#rightarrow#mu#mu)",nbins,xmin,xmax);
 
-	int nEvents = 1000;
+	int nEvents = 10000;
 	rhoChannel.generateChannel(nEvents);
 	rhoPlusChannel.generateChannel(nEvents);
 	omegaChannel.generateChannel(nEvents);
@@ -217,6 +217,14 @@ int main(int argc, char* argv[])
 
 	hs->Write("my_stack");
 	legend->Write("my_leg");
+
+	std::cout <<"Cross section rho channel = " << rhoChannel.getXSection() << std::endl;
+	std::cout <<"Cross section Err rho channel = " << rhoChannel.getXSectionErr() << std::endl;
+	std::cout <<"Cross section eta channel = " << etaChannel.getXSection() << std::endl;
+	std::cout <<"Cross section Err eta channel = " << etaChannel.getXSectionErr() << std::endl;
+	std::cout <<"Cross section jpsi channel = " << jpsiChannel.getXSection() << std::endl;
+	std::cout <<"Cross section Err jpsi channel = " << jpsiChannel.getXSectionErr() << std::endl;
+
 
 	delete outFile;
 

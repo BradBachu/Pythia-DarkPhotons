@@ -47,10 +47,11 @@ private:
 	// Analysis
 	DiMuonMass _dimumass;
 
-	// Weight of the channel
-	// TODO: determine where this comes from
-	// maybe pythia generates it or it comes from pdg
-	double xsection;
+	// Estimated Cross Section
+	double _xsection;
+
+	// Error in cross section
+	double _xsectionerr;
 	
 public:
 
@@ -69,6 +70,14 @@ public:
 		this->addChannels(channels,size,weight);
 	};
 
+	// constructor
+	MainChannel(string channels[], int size, double weight, string inputfile)
+	{
+		_pythia.readFile(inputfile);
+		_dimumass.setEtaCut(1.5);
+		this->addChannels(channels,size,weight);
+	};
+
 	// add all decay channels to pythia generation
 	void addChannels(string channels[], int size, double weight = 1);
 
@@ -77,6 +86,12 @@ public:
 
 	// return the Event analysis
 	DiMuonMass* getAnalysis();
+
+	// return estimated cross section
+	double getXSection();
+
+	// return cross section error
+	double getXSectionErr();
 };
 
 //------------------------------------------------------------------------------
@@ -91,9 +106,13 @@ void MainChannel::generateChannel(int nEvents)
   		// Generate event. Skip if error
     	if (!_pythia.next()) continue; 
     	_dimumass.analyze(_pythia.event);
+    	// std::cout<<"Event weight = " << _pythia.info.weight() << std::endl;
+    	// Note: output indicates that all events are weighted with 1.00
 	} 
 	// Statistics on event generation
 	_pythia.stat(); 
+	_xsection = _pythia.info.sigmaGen();
+	_xsectionerr = _pythia.info.sigmaErr();
 }
 
 //------------------------------------------------------------------------------
@@ -109,6 +128,26 @@ void MainChannel::addChannels(string channels[], int size, double weight)
 DiMuonMass* MainChannel::getAnalysis()
 {
 	return &_dimumass;
+}
+
+//------------------------------------------------------------------------------
+double MainChannel::getXSection()
+{
+	if (_xsection == 0)
+	{
+		std::cout<<"ERROR: Event not generated" << std::endl;
+	}
+	return _xsection;
+}
+
+//------------------------------------------------------------------------------
+double MainChannel::getXSectionErr()
+{
+	if (_xsectionerr == 0)
+	{
+		std::cout<<"ERROR: Event not generated" << std::endl;
+	}
+	return _xsectionerr;
 }
 
 } // namespace DarkPhotons

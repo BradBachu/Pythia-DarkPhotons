@@ -152,7 +152,6 @@ const void DiMuonMass::analyze(Event& event)
    // event loop
    for (int i = 0; i < event.size(); ++i)
    {
-      // std::cout << "i = " << i <<std::endl;
       if (abs(event[i].id())!=13) continue; // if particle is not mu skip
       if (_muOutDet(event[i]) == true) continue; // if mu out detector skip
       // std::cout << "Muon in detector" << std::endl;
