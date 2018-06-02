@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
 	upsilon2SChannel.getAnalysis()->setHist("hUpsilon2S", "M_{#mu#mu}(#Upsilon(2S)#rightarrow#mu#mu)",nbins,xmin,xmax);
 	upsilon3SChannel.getAnalysis()->setHist("hUpsilon3S", "M_{#mu#mu}(#Upsilon(3S)#rightarrow#mu#mu)",nbins,xmin,xmax);
 
-	int nEvents = 10000;
+	int nEvents = 1000;
 	rhoChannel.generateChannel(nEvents);
 	rhoPlusChannel.generateChannel(nEvents);
 	omegaChannel.generateChannel(nEvents);
