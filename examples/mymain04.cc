@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 	TApplication theApp("hist", &argc, argv);
 
 	// Create file on which histogram(s) can be saved.
-	TFile *outFile = new TFile("jpsi.root", "RECREATE");
+	TFile *outFile = new TFile("jpsi3.root", "RECREATE");
 
 
 	string sJPsi[4] = {"443:oneChannel = 1 0.05971 0 13 -13 ",
@@ -43,22 +43,41 @@ int main(int argc, char* argv[])
 					   "443:addChannel = 1 0.00000300 11 221 13 -13",
 					   "443:addChannel = 1 0.0000131 11 331 13 -13"};
 
-	MainChannel jpsiChannel(sJPsi,4,1,"jpsi.cmnd");
+	string sAll[14] = {"443: mayDecay = on", // j/psi
+					  "100443: mayDecay = on", // psi(2S)
+					  "30433: mayDecay = on", // psi(3770)
+					  "553: mayDecay = on", // upsilon
+					  "100553: mayDecay = on", // upsilon(2S)
+					  "200553: mayDecay = on", // upsilon(3S)
+					  "111: mayDecay = on", // pi^0
+					  "211: mayDecay = on", // pi^+
+					  "113: mayDecay = on", // rho(770)^0
+					  "213: mayDecay = on", // rho(770)^+
+					  "221: mayDecay = on", // eta
+					  "331: mayDecay = on", // eta^\prime
+					  "223: mayDecay = on", // omega(782)
+					  "333: mayDecay = on"}; //phi(1020)
+
+	// MainChannel jpsiChannel(sJPsi,4,1,"jpsi.cmnd");
+	MainChannel allChannel(sAll,0,14,"jpsi.cmnd");
 	
 	int nbins = 200;
-	double xmin = 0;
-	double xmax = 8;
+	double xmin = 0.;
+	double xmax = 8.;
 
-	jpsiChannel.getAnalysis()->setHist("hPsi", "M_{#mu#mu}(J/#Psi#rightarrow#mu#mu)",nbins,xmin,xmax);
-	int nEvents = 10000;
-	jpsiChannel.generateChannel(nEvents);
-	TH1D* hJPsi = jpsiChannel.getAnalysis()->getHist();
-	hJPsi->SetFillColor(kCyan);
-	hJPsi->Write();
-
+	// jpsiChannel.getAnalysis()->setHist("hPsi", "M_{#mu#mu}(J/#Psi#rightarrow#mu#mu)",nbins,xmin,xmax);
+	allChannel.getAnalysis()->setHist("hAll", "M_{#mu#mu}(All#rightarrow#mu#mu)",nbins,xmin,xmax);
+	int nEvents = 1000000;
+	// jpsiChannel.generateChannel(nEvents);
+	allChannel.generateChannel(nEvents);
+	// TH1D* hJPsi = jpsiChannel.getAnalysis()->getHist();
+	TH1D* hAll = allChannel.getAnalysis()->getHist();
+	// hJPsi->SetFillColor(kCyan);
+	// hJPsi->Write();
+	hAll->Write();
 	delete outFile;
 
-	TCanvas* c2 = new TCanvas(); 
+	TCanvas* c2 = new TCanvas();
 	gPad->WaitPrimitive();
 
   	return 0;
