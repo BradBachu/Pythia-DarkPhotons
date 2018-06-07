@@ -24,6 +24,8 @@
 
 // DarkPhotons
 #include "DiMuonMass.h"
+#include "DiMuonMothers.h"
+#include "PdgNames.h"
 
 namespace Pythia8
 {
@@ -47,11 +49,17 @@ private:
 	// Analysis
 	DiMuonMass _dimumass;
 
+	DiMuonMothers _dimumothers;
+
 	// Estimated Cross Section
 	double _xsection;
 
 	// Error in cross section
 	double _xsectionerr;
+
+	std::vector<TH1D*> _v_subchannel_hist;
+
+	std::vector<int> _v_subchannel_pdg;
 	
 public:
 
@@ -63,35 +71,33 @@ public:
 	};
 
 	// constructor
-	MainChannel(string channels[], int size, double weight)
-	{
-		_pythia.readFile("/home/bbachu/Software/pythia8230/examples/mymain03.cmnd");
-		_dimumass.setEtaCut(1.5);
-		this->addChannels(channels,size,weight);
-	};
-
-	// constructor
-	MainChannel(string channels[], int size, double weight, string inputfile)
+	MainChannel(int size, string channels[], TH1D* hists[], int pdg[], string inputfile)
 	{
 		_pythia.readFile(inputfile);
 		_dimumass.setEtaCut(1.5);
-		this->addChannels(channels,size,weight);
+		this->addChannels(size, channels, hists, pdg);
 	};
 
 	// add all decay channels to pythia generation
-	void addChannels(string channels[], int size, double weight = 1);
+	void addChannels(int size, string channels[], TH1D* hists[], int pdg[]);
 
 	// run the loop over the channels 
-	void generateChannel(int nEvents); //TODO give default value
+	void generateChannel(int nEvents); //TODO give default 
 
-	// return the Event analysis
-	DiMuonMass* getAnalysis();
+	// return the mass analysis
+	DiMuonMass* getMassAnalysis();
+	
+	// return the Mother analysis
+	DiMuonMothers* getMotherAnalysis();
 
 	// return estimated cross section
 	double getXSection();
 
 	// return cross section error
 	double getXSectionErr();
+
+	// fill the right histogram with the dimumass
+	void FillChannel(int pdgMother, double mass);
 };
 
 //------------------------------------------------------------------------------
@@ -104,30 +110,52 @@ void MainChannel::generateChannel(int nEvents)
   	for (int iEvent = 0; iEvent < nEvents; ++iEvent)
   	{
   		// Generate event. Skip if error
-    	if (!_pythia.next()) continue; 
+    	if (!_pythia.next()) {std::cout<<"Error in event generation" << std::endl; continue;} 
     	_dimumass.analyze(_pythia.event);
     	// std::cout<<"Event weight = " << _pythia.info.weight() << std::endl;
     	// Note: output indicates that all events are weighted with 1.00
+    	if (_dimumass.isDiMuEvent())
+    	{
+    		// _dimumothers.initialize();
+	    	_dimumothers.setMuMuBar(_dimumass.getLeadingMuI(), _dimumass.getLeadingMuBarI());
+	    	_dimumothers.showMuMothers(_pythia.event);
+	    	_dimumothers.showMuBarMothers(_pythia.event);
+	    	_dimumothers.analyze(_pythia.event);
+	    	// check if they are the same PDG mother
+	    	if (_dimumothers.isSamePDGMother())
+	    	{
+	    		// then fill the right histogram
+	    		this->FillChannel(_dimumothers.getMuMotherPDG(),_dimumass.getDiMuMass());
+	    	}
+    	}
 	} 
 	// Statistics on event generation
-	_pythia.stat(); 
+	_pythia.stat();
 	_xsection = _pythia.info.sigmaGen();
 	_xsectionerr = _pythia.info.sigmaErr();
 }
 
 //------------------------------------------------------------------------------
-void MainChannel::addChannels(string channels[], int size, double weight)
+void MainChannel::addChannels(int size, string channels[], TH1D* hists[], int pdg[])
 {
 	for (int i = 0; i < size; ++i)
 	{
 		_pythia.readString(channels[i]);
+		_v_subchannel_hist.push_back(hists[i]);
+		_v_subchannel_pdg.push_back(pdg[i]);
 	}
 }
 
 //------------------------------------------------------------------------------
-DiMuonMass* MainChannel::getAnalysis()
+DiMuonMass* MainChannel::getMassAnalysis()
 {
 	return &_dimumass;
+}
+
+//------------------------------------------------------------------------------
+DiMuonMothers* MainChannel::getMotherAnalysis()
+{
+	return &_dimumothers;
 }
 
 //------------------------------------------------------------------------------
@@ -148,6 +176,19 @@ double MainChannel::getXSectionErr()
 		std::cout<<"ERROR: Event not generated" << std::endl;
 	}
 	return _xsectionerr;
+}
+
+//------------------------------------------------------------------------------
+void MainChannel::FillChannel(int pdgMother, double mass)
+{
+	// loop through the sub channel pdg's
+	for (int i = 0; i < _v_subchannel_pdg.size(); ++i)
+	{
+		if (pdgMother == _v_subchannel_pdg[i])
+		{
+			_v_subchannel_hist[i]->Fill(mass);	
+		}
+	}
 }
 
 } // namespace DarkPhotons

@@ -52,9 +52,9 @@ private:
 
    double _dimumass = 0.0;
 
-   double _etaCut = 0.0;
+   double _etaCut = 1.5;
 
-   double _pTCut = 0.5;
+   double _pTCut =  3.0;
 
    bool _setEtaCut = false;
 
@@ -63,6 +63,8 @@ private:
    int _nMatch = 0;
 
    const bool _passedPtCut(Particle& particle);
+
+   bool _twoMuons = false;
 
 
 public:
@@ -100,6 +102,26 @@ public:
       return _leadingMuBarMother;
    }
 
+   int getLeadingMuI()
+   {
+      return _leadingMuI;
+   }
+
+   int getLeadingMuBarI()
+   {
+      return _leadingMuBarI;
+   }
+
+   const bool isDiMuEvent()
+   {
+      return _twoMuons;
+   }
+
+   const double getDiMuMass()
+   {
+      return _dimumass;
+   }
+
 };
 
 //------------------------------------------------------------------------------
@@ -112,6 +134,7 @@ void DiMuonMass::initialize()
    _leadingMuI = 0;
    _leadingMuBarI = 0;
    _dimumass = 0.;
+   _twoMuons = false;
 }
 
 //------------------------------------------------------------------------------
@@ -150,7 +173,7 @@ void DiMuonMass::updateLeadingMu(Particle& particle, int index)
 //------------------------------------------------------------------------------
 const void DiMuonMass::analyze(Event& event)
 {
-   if (_kHistSet == 0)
+   if (_kHist1D == 0)
    {
       std::cout<<"ERROR! HISTOGRAM NOT SET"<< std::endl;
    }
@@ -165,7 +188,7 @@ const void DiMuonMass::analyze(Event& event)
    {
       if (abs(event[i].id())!=13) continue; // if particle is not mu skip
       if (_muOutDet(event[i]) == true) continue; // if mu out detector skip
-      if (_passedPtCut(event[i]) == false) continue; // if mu.pT() <= pTCut skip
+      // if (_passedPtCut(event[i]) == false) continue; // if mu.pT() <= pTCut skip
       // if passed eta and pT cut, update leading mu pT
       this->updateLeadingMu(event[i],i);
    }
@@ -178,6 +201,9 @@ const void DiMuonMass::analyze(Event& event)
    // else combine 4 vectors and get mass
    else
    {
+      // then two good muons found
+      _twoMuons = true;
+
       Vec4 v1 = event[_leadingMuI].p();
       Vec4 v2 = event[_leadingMuBarI].p();
       _dimumass = (v1 + v2).mCalc();
@@ -187,7 +213,7 @@ const void DiMuonMass::analyze(Event& event)
       // std::cout<< "Mu+ mother index = "<< event[_leadingMuBarI].mother1() << std::endl;
       // if (event[_leadingMuI].mother1() != event[_leadingMuBarI].mother1()) {++_nMatch; _dimumass =  -1;}
    }
-   _h->Fill(_dimumass);
+   _h1D->Fill(_dimumass);
 }
 
 //------------------------------------------------------------------------------c

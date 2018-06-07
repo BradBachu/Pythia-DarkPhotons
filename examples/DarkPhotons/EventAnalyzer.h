@@ -36,10 +36,14 @@ class EventAnalyzer
 {
 protected:
     // null pointer
-	TH1D* _h = 0;
+	TH1D* _h1D = 0;
+
+	TH2I* _h2I = 0;
 
 	// keep track if hist was set
-	bool _kHistSet = 0;
+	bool _kHist1D = 0;
+
+	bool _kHist2I = 0;
 
 public:
 
@@ -53,13 +57,21 @@ public:
 	virtual void initialize() = 0;
 
 	// needed to set the histogram parameters
-	void setHist(const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup)
+	void setHist1D(const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup)
 	{
-		_h = (TH1D*) new TH1D(name, title, nbinsx, xlow, xup);
-		_kHistSet = 1;
+		_h1D = (TH1D*) new TH1D(name, title, nbinsx, xlow, xup);
+		_kHist1D = 1;
 	}
 
-	TH1D* getHist();
+	void setHist2I(const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup)
+	{
+		_h2I = (TH2I*) new TH2D(name, title, nbinsx, xlow, xup, nbinsy, ylow, yup) ;
+		_kHist2I = 1;
+	}
+
+	TH1D* getHist1D();
+
+	TH2I* getHist2I();
 
 	void plotHist();
    
@@ -67,19 +79,26 @@ public:
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-TH1D* EventAnalyzer::getHist()
+TH1D* EventAnalyzer::getHist1D()
 {
-	_h->SetStats(0);
-	return _h;
+	_h1D->SetStats(0);
+	return _h1D;
+}
+
+//------------------------------------------------------------------------------
+TH2I* EventAnalyzer::getHist2I()
+{
+	_h2I->SetStats(0);
+	return _h2I;
 }
 
 //------------------------------------------------------------------------------
 void EventAnalyzer::plotHist()
 {
-   _h->SetStats(0);
+   _h1D->SetStats(0);
    std::cout << "plotting histogram"<< std::endl;
    TCanvas* c1 = new TCanvas();
-   _h->Draw();
+   _h1D->Draw();
    gPad->WaitPrimitive();	
 }
 
