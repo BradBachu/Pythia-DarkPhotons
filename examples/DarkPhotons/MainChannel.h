@@ -118,8 +118,8 @@ void MainChannel::generateChannel(int nEvents)
     	{
     		// _dimumothers.initialize();
 	    	_dimumothers.setMuMuBar(_dimumass.getLeadingMuI(), _dimumass.getLeadingMuBarI());
-	    	_dimumothers.showMuMothers(_pythia.event);
-	    	_dimumothers.showMuBarMothers(_pythia.event);
+	    	// _dimumothers.showMuMothers(_pythia.event);
+	    	// _dimumothers.showMuBarMothers(_pythia.event);
 	    	_dimumothers.analyze(_pythia.event);
 	    	// check if they are the same PDG mother
 	    	if (_dimumothers.isSamePDGMother())
@@ -182,7 +182,7 @@ double MainChannel::getXSectionErr()
 void MainChannel::FillChannel(int pdgMother, double mass)
 {
 	// loop through the sub channel pdg's
-	for (int i = 0; i < _v_subchannel_pdg.size(); ++i)
+	for (int i = 0; i <=_v_subchannel_pdg.size(); ++i)
 	{
 		if (pdgMother == _v_subchannel_pdg[i])
 		{

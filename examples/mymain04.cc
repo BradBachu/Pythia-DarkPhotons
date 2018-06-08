@@ -60,13 +60,13 @@ pdgParticle[221] = "#eta";
 pdgParticle[331] = "#eta'";
 
 pdgParticle[223] = "#omega(782)";
-pdgParticle[333] = "#Phi(1020)";
+pdgParticle[333] = "#phi(1020)";
 
 	// Create the ROOT application environment. 
 	TApplication theApp("hist", &argc, argv);
 
 	// Create file on which histogram(s) can be saved.
-	TFile *outFile = new TFile("jpsi3.root", "RECREATE");
+	TFile *outFile = new TFile("jpsi5.root", "RECREATE");
 
 
 	string sJPsi[4] = {"443:oneChannel = 1 0.05971 0 13 -13 ",
@@ -74,12 +74,12 @@ pdgParticle[333] = "#Phi(1020)";
 					   "443:addChannel = 1 0.00000300 11 221 13 -13",
 					   "443:addChannel = 1 0.0000131 11 331 13 -13"};
 
-	string sAll[9] = {"443: mayDecay = on", // j/psi
-					  // "100443: mayDecay = on", // psi(2S)
-					  // "30433: mayDecay = on", // psi(3770)
+	string sAll[13] = {"443: mayDecay = on", // j/psi
+					  "100443: mayDecay = on", // psi(2S)
+					  "30443: mayDecay = on", // psi(3770)
 					  "553: mayDecay = on", // upsilon
-					  // "100553: mayDecay = on", // upsilon(2S)
-					  // "200553: mayDecay = on", // upsilon(3S)
+					  "100553: mayDecay = on", // upsilon(2S)
+					  "200553: mayDecay = on", // upsilon(3S)
 					  "111: mayDecay = on", // pi^0
 					  // "211: mayDecay = on", // pi^+
 					  "113: mayDecay = on", // rho(770)^0
@@ -96,12 +96,12 @@ pdgParticle[333] = "#Phi(1020)";
 
 	TH1D* h443    = new TH1D("h443",    "M_{#mu#mu}("+TString(pdgParticle[443])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h100443 = new TH1D("h100443", "M_{#mu#mu}("+TString(pdgParticle[100443])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
-	TH1D* h30433  = new TH1D("h30433",  "M_{#mu#mu}("+TString(pdgParticle[30443])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
+	TH1D* h30443  = new TH1D("h30443",  "M_{#mu#mu}("+TString(pdgParticle[30443])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h553    = new TH1D("h553",    "M_{#mu#mu}("+TString(pdgParticle[553])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h100553 = new TH1D("h100553", "M_{#mu#mu}("+TString(pdgParticle[100553])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h200553 = new TH1D("h200553", "M_{#mu#mu}("+TString(pdgParticle[200553])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h111    = new TH1D("h111",    "M_{#mu#mu}("+TString(pdgParticle[111])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
-	TH1D* h211    = new TH1D("h211",    "M_{#mu#mu}("+TString(pdgParticle[211])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
+	// TH1D* h211    = new TH1D("h211",    "M_{#mu#mu}("+TString(pdgParticle[211])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h113    = new TH1D("h113",    "M_{#mu#mu}("+TString(pdgParticle[113])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h213    = new TH1D("h213",    "M_{#mu#mu}("+TString(pdgParticle[213])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h221    = new TH1D("h221",    "M_{#mu#mu}("+TString(pdgParticle[221])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
@@ -110,29 +110,29 @@ pdgParticle[333] = "#Phi(1020)";
 	TH1D* h333    = new TH1D("h333",    "M_{#mu#mu}("+TString(pdgParticle[333])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 
 
-	TH1D* hAll[9] = {  h443,
-							// h100443,
-							// h30433,
+	TH1D* hAll[13] = {  h443,
+							h100443,
+							h30443,
 							h553,
-							// h100553,
-							// h200553,
+							h100553,
+							h200553,
 							h111,
 							// h211,
 							h113,
 							h213,
+							h221,
 							h331,
 							h223,
 							h333
 						};
 
-	int pdgIDs[9] ={443,
-						// 100443,
-						// 30433,
+	int pdgIDs[13] ={443,
+						100443,
+						30443,
 						553,
-						// 100553,
-						// 200553,
+						100553,
+						200553,
 						111,
-						// 211,
 						113,
 						213,
 						221,
@@ -149,18 +149,18 @@ pdgParticle[333] = "#Phi(1020)";
 	// jpsiChannel.getAnalysis()->setHist("hPsi", "M_{#mu#mu}(J/#Psi#rightarrow#mu#mu)",nbins,xmin,xmax);
 	allChannel.getMassAnalysis()->setHist1D("hAllmass", "M_{#mu#mu}(All#rightarrow#mu#mu)",nbins,xmin,xmax);
 	allChannel.getMotherAnalysis()->setHist2I("hAllmothers", "PDG Mothers of #mu^{+} and #mu^{-}",40,200,600,40,200,600);
-	int nEvents = 100000;
+	int nEvents = 1000000;
 	// jpsiChannel.generateChannel(nEvents);
 	allChannel.generateChannel(nEvents);
 
 	h443->SetFillColor(kRed);				h443->Write();
 	h100443->SetFillColor(kRed+1);		h100443->Write();
-	h30433->SetFillColor(kRed+2);			h30433->Write();
+	h30443->SetFillColor(kRed+2);			h30443->Write();
 	h553->SetFillColor(kBlue);				h553->Write();
 	h100553->SetFillColor(kBlue+1);		h100553->Write();
 	h200553->SetFillColor(kBlue+2);		h200553->Write();
 	h111->SetFillColor(kGreen);			h111->Write();
-	h211->SetFillColor(kGreen+2);			h211->Write();
+	// h211->SetFillColor(kGreen+2);			h211->Write();
 	h113->SetFillColor(kOrange);			h113->Write();
 	h213->SetFillColor(kOrange+8);		h213->Write();
 	h221->SetFillColor(kViolet);			h221->Write();
@@ -174,7 +174,7 @@ pdgParticle[333] = "#Phi(1020)";
 
 	THStack* hs = new THStack("hSamePdgMother", "M_{#mu#mu} All Channels");
 	TLegend *legend = new TLegend(.60, .60, .8,.8);
-	for (int i = 0; i < 9; ++i)
+	for (int i = 0; i <13; ++i)
 	{
 		hs->Add(hAll[i]);
 		legend->AddEntry(hAll[i],TString(pdgParticle[pdgIDs[i]]),"f");
@@ -184,7 +184,7 @@ pdgParticle[333] = "#Phi(1020)";
 	// hJPsi->SetFillColor(kCyan);
 	// hJPsi->Write();
 	hAllmass->Write();
-	hAllmothers->Write("hSamePdgMother");
+	hAllmothers->Write("h2AllPdgMother");
 	legend->Write("leg");
 	hs->Write();
 	delete outFile;
