@@ -65,8 +65,11 @@ pdgParticle[333] = "#phi(1020)";
 	// Create the ROOT application environment. 
 	TApplication theApp("hist", &argc, argv);
 
+	int seed = std::stoi(argv[1],nullptr,10);
+
 	// Create file on which histogram(s) can be saved.
-	TFile *outFile = new TFile("jpsi5.root", "RECREATE");
+	TString outname = "out" + TString(argv[1]) + ".root";
+	TFile *outFile = new TFile(outname, "RECREATE");
 
 
 	string sJPsi[4] = {"443:oneChannel = 1 0.05971 0 13 -13 ",
@@ -142,16 +145,15 @@ pdgParticle[333] = "#phi(1020)";
 
 
 
-
 	// MainChannel jpsiChannel(sJPsi,4,1,"jpsi.cmnd");
-	MainChannel allChannel(9, sAll, hAll, pdgIDs, "jpsi.cmnd"); 
+	MainChannel allChannel(13, sAll, hAll, pdgIDs, "jpsi.cmnd"); 
 
 	// jpsiChannel.getAnalysis()->setHist("hPsi", "M_{#mu#mu}(J/#Psi#rightarrow#mu#mu)",nbins,xmin,xmax);
 	allChannel.getMassAnalysis()->setHist1D("hAllmass", "M_{#mu#mu}(All#rightarrow#mu#mu)",nbins,xmin,xmax);
 	allChannel.getMotherAnalysis()->setHist2I("hAllmothers", "PDG Mothers of #mu^{+} and #mu^{-}",40,200,600,40,200,600);
-	int nEvents = 1000000;
+	int nEvents = 20000;
 	// jpsiChannel.generateChannel(nEvents);
-	allChannel.generateChannel(nEvents);
+	allChannel.generateChannel(nEvents, seed);
 
 	h443->SetFillColor(kRed);				h443->Write();
 	h100443->SetFillColor(kRed+1);		h100443->Write();

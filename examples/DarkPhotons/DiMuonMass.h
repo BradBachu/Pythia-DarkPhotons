@@ -166,7 +166,7 @@ void DiMuonMass::updateLeadingMu(Particle& particle, int index)
    }   
    else 
    {
-      std::cout <<"ERROR!"<< std::endl;
+      std::cout <<"ERROR!"<< stds::endl;
    }
 }
 
@@ -188,7 +188,7 @@ const void DiMuonMass::analyze(Event& event)
    {
       if (abs(event[i].id())!=13) continue; // if particle is not mu skip
       if (_muOutDet(event[i]) == true) continue; // if mu out detector skip
-      // if (_passedPtCut(event[i]) == false) continue; // if mu.pT() <= pTCut skip
+      if (_passedPtCut(event[i]) == false) continue; // if mu.pT() <= pTCut skip
       // if passed eta and pT cut, update leading mu pT
       this->updateLeadingMu(event[i],i);
    }

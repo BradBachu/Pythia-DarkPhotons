@@ -73,6 +73,7 @@ public:
 	// constructor
 	MainChannel(int size, string channels[], TH1D* hists[], int pdg[], string inputfile)
 	{
+		_pythia.readString("Random:setSeed = on");
 		_pythia.readFile(inputfile);
 		_dimumass.setEtaCut(1.5);
 		this->addChannels(size, channels, hists, pdg);
@@ -82,7 +83,7 @@ public:
 	void addChannels(int size, string channels[], TH1D* hists[], int pdg[]);
 
 	// run the loop over the channels 
-	void generateChannel(int nEvents); //TODO give default 
+	void generateChannel(int nEvents, int seed); //TODO give default 
 
 	// return the mass analysis
 	DiMuonMass* getMassAnalysis();
@@ -102,9 +103,10 @@ public:
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void MainChannel::generateChannel(int nEvents)
+void MainChannel::generateChannel(int nEvents, int seed)
 {
 	// initialize pythia
+	_pythia.readString("Random:seed = " + std::to_string(seed));
 	_pythia.init();
 	// Begin event loop. Generate event; skip if generation aborted.
   	for (int iEvent = 0; iEvent < nEvents; ++iEvent)
@@ -112,19 +114,20 @@ void MainChannel::generateChannel(int nEvents)
   		// Generate event. Skip if error
     	if (!_pythia.next()) {std::cout<<"Error in event generation" << std::endl; continue;} 
     	_dimumass.analyze(_pythia.event);
-    	// std::cout<<"Event weight = " << _pythia.info.weight() << std::endl;
     	// Note: output indicates that all events are weighted with 1.00
     	if (_dimumass.isDiMuEvent())
     	{
-    		// _dimumothers.initialize();
+    		std::cout << "Mass = " << _dimumass.getDiMuMass() << std::endl;
+    		_dimumothers.initialize();
 	    	_dimumothers.setMuMuBar(_dimumass.getLeadingMuI(), _dimumass.getLeadingMuBarI());
-	    	// _dimumothers.showMuMothers(_pythia.event);
-	    	// _dimumothers.showMuBarMothers(_pythia.event);
+	    	_dimumothers.showMuMothers(_pythia.event);
+	    	_dimumothers.showMuBarMothers(_pythia.event);
 	    	_dimumothers.analyze(_pythia.event);
 	    	// check if they are the same PDG mother
 	    	if (_dimumothers.isSamePDGMother())
 	    	{
 	    		// then fill the right histogram
+	    		std::cout<<"--------- Same Mother ---------" << std::endl;
 	    		this->FillChannel(_dimumothers.getMuMotherPDG(),_dimumass.getDiMuMass());
 	    	}
     	}
@@ -182,11 +185,14 @@ double MainChannel::getXSectionErr()
 void MainChannel::FillChannel(int pdgMother, double mass)
 {
 	// loop through the sub channel pdg's
-	for (int i = 0; i <=_v_subchannel_pdg.size(); ++i)
+	for (int i = 0; i <_v_subchannel_pdg.size(); ++i)
 	{
+		// std::cout <<"try" << _v_subchannel_pdg[i] << std::endl;
 		if (pdgMother == _v_subchannel_pdg[i])
 		{
+			std::cout << "PDG Mother =" << pdgMother << " matched to" << _v_subchannel_pdg[i] << std::endl;
 			_v_subchannel_hist[i]->Fill(mass);	
+			break;
 		}
 	}
 }
