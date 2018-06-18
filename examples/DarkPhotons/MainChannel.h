@@ -76,6 +76,8 @@ public:
 		_pythia.readString("Random:setSeed = on");
 		_pythia.readFile(inputfile);
 		_dimumass.setEtaCut(1.5);
+		_dimumass.setPtCut(3.0);
+		_dimumass.setDeltaRCut(1.4);
 		this->addChannels(size, channels, hists, pdg);
 	};
 
@@ -117,7 +119,7 @@ void MainChannel::generateChannel(int nEvents, int seed)
     	// Note: output indicates that all events are weighted with 1.00
     	if (_dimumass.isDiMuEvent())
     	{
-    		std::cout << "Mass = " << _dimumass.getDiMuMass() << std::endl;
+    		// std::cout << "Mass = " << _dimumass.getDiMuMass() << std::endl;
     		_dimumothers.initialize();
 	    	_dimumothers.setMuMuBar(_dimumass.getLeadingMuI(), _dimumass.getLeadingMuBarI());
 	    	_dimumothers.showMuMothers(_pythia.event);
@@ -127,7 +129,7 @@ void MainChannel::generateChannel(int nEvents, int seed)
 	    	if (_dimumothers.isSamePDGMother())
 	    	{
 	    		// then fill the right histogram
-	    		std::cout<<"--------- Same Mother ---------" << std::endl;
+	    		// std::cout<<"--------- Same Mother ---------" << std::endl;
 	    		this->FillChannel(_dimumothers.getMuMotherPDG(),_dimumass.getDiMuMass());
 	    	}
     	}
@@ -190,7 +192,7 @@ void MainChannel::FillChannel(int pdgMother, double mass)
 		// std::cout <<"try" << _v_subchannel_pdg[i] << std::endl;
 		if (pdgMother == _v_subchannel_pdg[i])
 		{
-			std::cout << "PDG Mother =" << pdgMother << " matched to" << _v_subchannel_pdg[i] << std::endl;
+			// std::cout << "PDG Mother =" << pdgMother << " matched to" << _v_subchannel_pdg[i] << std::endl;
 			_v_subchannel_hist[i]->Fill(mass);	
 			break;
 		}

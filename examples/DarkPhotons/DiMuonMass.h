@@ -56,6 +56,8 @@ private:
 
    double _pTCut =  3.0;
 
+   double _deltaRCut = 1.4;
+
    bool _setEtaCut = false;
 
    const bool _muOutDet(Particle& particle);
@@ -65,6 +67,8 @@ private:
    const bool _passedPtCut(Particle& particle);
 
    bool _twoMuons = false;
+
+   const bool _passedDeltaRCut(Vec4 v1, Vec4 v2);
 
 
 public:
@@ -90,6 +94,11 @@ public:
    void setPtCut(double pTCut)
    {
       _pTCut = pTCut;
+   }
+
+   void setDeltaRCut(double deltaRCut)
+   {
+      _deltaRCut = deltaRCut;
    }
 
    int getLeadMuMother()
@@ -166,7 +175,7 @@ void DiMuonMass::updateLeadingMu(Particle& particle, int index)
    }   
    else 
    {
-      std::cout <<"ERROR!"<< stds::endl;
+      std::cout <<"ERROR!"<< std::endl;
    }
 }
 
@@ -202,16 +211,23 @@ const void DiMuonMass::analyze(Event& event)
    else
    {
       // then two good muons found
-      _twoMuons = true;
-
       Vec4 v1 = event[_leadingMuI].p();
       Vec4 v2 = event[_leadingMuBarI].p();
-      _dimumass = (v1 + v2).mCalc();
-      _leadingMuMother = event[event[_leadingMuI].mother1()].id();
-      _leadingMuBarMother = event[event[_leadingMuBarI].mother1()].id();
-      // std::cout<< "Mu- mother index = "<< event[_leadingMuI].mother1() << std::endl;
-      // std::cout<< "Mu+ mother index = "<< event[_leadingMuBarI].mother1() << std::endl;
-      // if (event[_leadingMuI].mother1() != event[_leadingMuBarI].mother1()) {++_nMatch; _dimumass =  -1;}
+      // apply DeltaR cut
+      if(_passedDeltaRCut(v1,v2) == false) 
+      {
+         _dimumass = -1;
+      }
+      else
+      {
+         _twoMuons = true;
+         _dimumass = (v1 + v2).mCalc();
+         _leadingMuMother = event[event[_leadingMuI].mother1()].id();
+         _leadingMuBarMother = event[event[_leadingMuBarI].mother1()].id();
+         // std::cout<< "Mu- mother index = "<< event[_leadingMuI].mother1() << std::endl;
+         // std::cout<< "Mu+ mother index = "<< event[_leadingMuBarI].mother1() << std::endl;
+         // if (event[_leadingMuI].mother1() != event[_leadingMuBarI].mother1()) {++_nMatch; _dimumass =  -1;}
+      }
    }
    _h1D->Fill(_dimumass);
 }
@@ -237,6 +253,18 @@ const bool DiMuonMass::_passedPtCut(Particle& particle)
    if (particle.pT() > _pTCut)
    {
       return true; 
+   }
+   else
+   {
+      return false;
+   }
+}
+
+const bool DiMuonMass::_passedDeltaRCut(Vec4 v1, Vec4 v2)
+{
+   if ( abs(RRapPhi(v1,v2)) < _deltaRCut)
+   {
+      return true;
    }
    else
    {

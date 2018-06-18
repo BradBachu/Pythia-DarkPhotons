@@ -61,6 +61,7 @@ pdgParticle[331] = "#eta'";
 
 pdgParticle[223] = "#omega(782)";
 pdgParticle[333] = "#phi(1020)";
+pdgParticle[130] = "K_{S}^{0}";
 
 	// Create the ROOT application environment. 
 	TApplication theApp("hist", &argc, argv);
@@ -77,22 +78,25 @@ pdgParticle[333] = "#phi(1020)";
 					   "443:addChannel = 1 0.00000300 11 221 13 -13",
 					   "443:addChannel = 1 0.0000131 11 331 13 -13"};
 
-	string sAll[13] = {"443: mayDecay = on", // j/psi
+	string sAll[16] = {"443: mayDecay = on", // j/psi
 					  "100443: mayDecay = on", // psi(2S)
 					  "30443: mayDecay = on", // psi(3770)
 					  "553: mayDecay = on", // upsilon
 					  "100553: mayDecay = on", // upsilon(2S)
 					  "200553: mayDecay = on", // upsilon(3S)
 					  "111: mayDecay = on", // pi^0
-					  // "211: mayDecay = on", // pi^+
 					  "113: mayDecay = on", // rho(770)^0
 					  "213: mayDecay = on", // rho(770)^+
 					  "221: mayDecay = on", // eta
 					  "331: mayDecay = on", // eta^\prime
 					  "223: mayDecay = on", // omega(782)
-					  "333: mayDecay = on"}; //phi(1020)
+					  "333: mayDecay = on", //phi(1020)
+                 "211: mayDecay = on", //pi^+
+                 "130: mayDecay = on", //K_L^0
+                 "321: mayDecay = on"}; // K^+
+
 	
-	int nbins = 200;
+	int nbins = 400;
 	double xmin = 0.;
 	double xmax = 8.;
 
@@ -104,7 +108,7 @@ pdgParticle[333] = "#phi(1020)";
 	TH1D* h100553 = new TH1D("h100553", "M_{#mu#mu}("+TString(pdgParticle[100553])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h200553 = new TH1D("h200553", "M_{#mu#mu}("+TString(pdgParticle[200553])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h111    = new TH1D("h111",    "M_{#mu#mu}("+TString(pdgParticle[111])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
-	// TH1D* h211    = new TH1D("h211",    "M_{#mu#mu}("+TString(pdgParticle[211])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
+	TH1D* h130    = new TH1D("h130",    "M_{#mu#mu}("+TString(pdgParticle[130])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h113    = new TH1D("h113",    "M_{#mu#mu}("+TString(pdgParticle[113])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h213    = new TH1D("h213",    "M_{#mu#mu}("+TString(pdgParticle[213])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 	TH1D* h221    = new TH1D("h221",    "M_{#mu#mu}("+TString(pdgParticle[221])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
@@ -113,14 +117,14 @@ pdgParticle[333] = "#phi(1020)";
 	TH1D* h333    = new TH1D("h333",    "M_{#mu#mu}("+TString(pdgParticle[333])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
 
 
-	TH1D* hAll[13] = {  h443,
+	TH1D* hAll[14] = {  h443,
 							h100443,
 							h30443,
 							h553,
 							h100553,
 							h200553,
 							h111,
-							// h211,
+							h130,
 							h113,
 							h213,
 							h221,
@@ -129,13 +133,14 @@ pdgParticle[333] = "#phi(1020)";
 							h333
 						};
 
-	int pdgIDs[13] ={443,
+	int pdgIDs[14] ={443,
 						100443,
 						30443,
 						553,
 						100553,
 						200553,
 						111,
+						130,
 						113,
 						213,
 						221,
@@ -146,12 +151,12 @@ pdgParticle[333] = "#phi(1020)";
 
 
 	// MainChannel jpsiChannel(sJPsi,4,1,"jpsi.cmnd");
-	MainChannel allChannel(13, sAll, hAll, pdgIDs, "jpsi.cmnd"); 
+	MainChannel allChannel(16, sAll, hAll, pdgIDs, "jpsi.cmnd"); 
 
 	// jpsiChannel.getAnalysis()->setHist("hPsi", "M_{#mu#mu}(J/#Psi#rightarrow#mu#mu)",nbins,xmin,xmax);
 	allChannel.getMassAnalysis()->setHist1D("hAllmass", "M_{#mu#mu}(All#rightarrow#mu#mu)",nbins,xmin,xmax);
 	allChannel.getMotherAnalysis()->setHist2I("hAllmothers", "PDG Mothers of #mu^{+} and #mu^{-}",40,200,600,40,200,600);
-	int nEvents = 20000;
+	int nEvents = 10000;
 	// jpsiChannel.generateChannel(nEvents);
 	allChannel.generateChannel(nEvents, seed);
 
@@ -162,7 +167,7 @@ pdgParticle[333] = "#phi(1020)";
 	h100553->SetFillColor(kBlue+1);		h100553->Write();
 	h200553->SetFillColor(kBlue+2);		h200553->Write();
 	h111->SetFillColor(kGreen);			h111->Write();
-	// h211->SetFillColor(kGreen+2);			h211->Write();
+	h130->SetFillColor(kBlack);			h130->Write();
 	h113->SetFillColor(kOrange);			h113->Write();
 	h213->SetFillColor(kOrange+8);		h213->Write();
 	h221->SetFillColor(kViolet);			h221->Write();
