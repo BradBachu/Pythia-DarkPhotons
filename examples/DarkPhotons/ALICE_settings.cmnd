@@ -1,0 +1,91 @@
+! mu+ mu- production at the LHC
+Beams:idA = 2212  ! first incoming beam is a 2212, i.e. a proton.
+Beams:idB = 2212  ! second beam is also a proton.
+Beams:eCM = 2760.   ! the cm energy of collisions.
+
+ParticleDecays:limitTau0 = off
+
+
+
+Charmonium:all = on
+Bottomonium:all = on
+
+# J/Psi(1S)
+443:onMode = off
+443:onIfAny = 13 -13
+#443:onIfMatch = 13 -13
+
+# Psi(3770)
+30443:onMode = off
+30443:onIfAny = 13 -13
+#30443:onIfMatch = 13 -13
+
+# Psi(2S)
+100443:onMode = off
+100443:onIfAny = 13 -13
+#100443:onIfMatch = 13 -13
+
+# Upsilon(1S)
+553:onMode = off
+553:onIfAny = 13 -13
+#553:onIfMatch = 13 -13
+
+# Upsilon(2S)
+100553:onMode = off
+100553:onIfAny = 13 -13
+#100553:onIfMatch = 13 -13
+
+# Upsilon(3S)
+200553:onMode = off
+200553:onIfAny = 13 -13
+#200553:onIfMatch = 13 -13
+
+# Pi^0
+111:onMode = off
+111:onIfAny = 13 -13
+#111:onIfMatch = 13 -13
+
+# Rho^0
+113:onMode = off
+113:onIfAny = 13 -13
+#113:onIfMatch = 13 -13
+
+# Rho^+
+213:onMode = off
+213:onIfAny = 13 -13
+#213:onIfMatch = 13 -13
+
+# Eta
+221:onMode = off
+221:onIfAny = 13 -13
+#221:onIfMatch = 13 -13
+
+# Eta^\prime
+331:onMode = off
+331:onIfAny = 13 -13
+#331:onIfMatch = 13 -13
+
+# omega(728)
+223:onMode = off
+223:onIfAny = 13 -13
+#223:onIfMatch = 13 -13
+
+# phi(1020)
+333:onMode = off
+333:onIfAny = 13 -13
+#333:onIfMatch = 13 -13
+
+# K_L^0
+130:onMode = off
+130:onIfAny = 13 -13
+#130:onIfMatch = 13 -13
+
+# K_S^0
+310:onMode = off
+310:onIfAny = 13 -13
+#130:onIfMatch = 13 -13
+
+# K^+
+321:onMode = off
+321:onIfAny = 13 -13
+#321:onIfMatch = 13 -13

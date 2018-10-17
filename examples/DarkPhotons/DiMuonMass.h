@@ -16,15 +16,9 @@
 
 #include "Pythia8/Pythia.h"
 
-// ROOT histograming
-#include "TH1.h"
-
-// ROOT, for interactive graphics.
-#include "TVirtualPad.h"
-#include "TApplication.h"
-#include "TCanvas.h"
-
-#include "EventAnalyzer.h"
+#include "Analysis.h"
+#include "PtCut.h"
+#include "EtaCut.h"
 
 namespace Pythia8
 {
@@ -32,83 +26,66 @@ namespace Pythia8
 namespace DarkPhotons
 {
 
-class DiMuonMass : public EventAnalyzer
+class DiMuonMass : public Analysis
 {
+
 private:
 
-   double _leadingMuPt = 0.0;
+   double _leadingMuPt = 0.0; // leading mu- pt
+    
+   double _leadingMuBarPt = 0.0; // leading mu+ pt
+
+   int _leadingMuI = 0; // leading mu- index
    
-   double _leadingMuBarPt = 0.0;
+   int _leadingMuBarI = 0; // leading mu+ index
 
-   // Index of leading Mu
-   int _leadingMuI = 0;
-   
-   // Index of leading MuBar
-   int _leadingMuBarI = 0;
+   int _leadingMuMotherI =0; // leading mu- mother index
 
-   int _leadingMuMother =0;
+   int _leadingMuBarMotherI =0; // leading mu+ mother index
 
-   int _leadingMuBarMother =0;
+   int _leadingMuMotherPDG = 0; // leading mu- mother PDG
 
-   double _dimumass = 0.0;
+   int _leadingMuBarMotherPDG = 0; // leading mu+ mother PDG
 
-   double _etaCut = 1.5;
-
-   double _pTCut =  3.0;
-
-   double _deltaRCut = 1.4;
-
-   bool _setEtaCut = false;
-
-   const bool _muOutDet(Particle& particle);
-
-   int _nMatch = 0;
-
-   const bool _passedPtCut(Particle& particle);
+   double _dimumass = 0.0; // di-muon mass
 
    bool _twoMuons = false;
 
-   const bool _passedDeltaRCut(Vec4 v1, Vec4 v2);
+   bool _updated = false;
 
+   TH1D* _h = 0;
 
 public:
 
-   DiMuonMass() {} ;
+   DiMuonMass(TH1D* h)
+      :_h(h) {} ;
 
    virtual ~DiMuonMass() {};
 
-   virtual const void analyze(Event& event);
-
    virtual void initialize();
+
+   virtual void eventAnalysis(Event& event, int index);
 
    void updateLeadingMu(Particle& particle, int index);
 
-   const int getNMatch();
-
-   void setEtaCut(double etaCut)
+   int getLeadMuMotherI()
    {
-      _etaCut = etaCut;
-      _setEtaCut = true;
+      return _leadingMuMotherI;
    }
 
-   void setPtCut(double pTCut)
+   int getLeadMuBarMotherI()
    {
-      _pTCut = pTCut;
+      return _leadingMuBarMotherI;
    }
 
-   void setDeltaRCut(double deltaRCut)
+   int getLeadingMuMotherPDG()
    {
-      _deltaRCut = deltaRCut;
+      return _leadingMuMotherPDG;
    }
 
-   int getLeadMuMother()
+   int getLeadingMuBarMotherPDG()
    {
-      return _leadingMuMother;
-   }
-
-   int getLeadMuBarMother()
-   {
-      return _leadingMuBarMother;
+      return _leadingMuBarMotherPDG;
    }
 
    int getLeadingMuI()
@@ -142,13 +119,15 @@ void DiMuonMass::initialize()
    _leadingMuBarPt = 0.;
    _leadingMuI = 0;
    _leadingMuBarI = 0;
-   _dimumass = 0.;
+   _dimumass = -1.;
    _twoMuons = false;
 }
 
 //------------------------------------------------------------------------------
 void DiMuonMass::updateLeadingMu(Particle& particle, int index)
-{
+{  
+   _updated = false;
+
    if (particle.id() == 13) // if mu-
    {
       // std::cout << "mu- identified" << std::endl;
@@ -156,6 +135,7 @@ void DiMuonMass::updateLeadingMu(Particle& particle, int index)
       // std::cout << "mu- pT = " << particle.pT() << std::endl;
       if (particle.pT() > _leadingMuPt) // update the leading
       {
+         _updated = true;
          // std::cout << "Update" << std::endl;
          _leadingMuPt = particle.pT();
          _leadingMuI = index;
@@ -168,6 +148,7 @@ void DiMuonMass::updateLeadingMu(Particle& particle, int index)
       // std::cout << "mu+ pT = " << particle.pT() << std::endl;
       if (particle.pT() > _leadingMuBarPt) // update the leading
       {
+         _updated = true;
          // std::cout << "Update" << std::endl;
          _leadingMuBarPt = particle.pT();
          _leadingMuBarI = index;
@@ -180,106 +161,42 @@ void DiMuonMass::updateLeadingMu(Particle& particle, int index)
 }
 
 //------------------------------------------------------------------------------
-const void DiMuonMass::analyze(Event& event)
+void DiMuonMass::eventAnalysis(Event& event, int index)
 {
-   if (_kHist1D == 0)
-   {
-      std::cout<<"ERROR! HISTOGRAM NOT SET"<< std::endl;
-   }
-   if (_setEtaCut = false)
-   {
-      std::cout <<"Warning: No Eta Cut Set" << std::endl;
-   }
-   this->initialize();
 
-   // event loop
-   for (int i = 0; i < event.size(); ++i)
-   {
-      if (abs(event[i].id())!=13) continue; // if particle is not mu skip
-      if (_muOutDet(event[i]) == true) continue; // if mu out detector skip
-      if (_passedPtCut(event[i]) == false) continue; // if mu.pT() <= pTCut skip
-      // if passed eta and pT cut, update leading mu pT
-      this->updateLeadingMu(event[i],i);
-   }
-   // if < 2 good opposite sign muons are found
-   // fill with -1 (so that it does not affect distribution)
-   if ((_leadingMuPt==0)||(_leadingMuBarPt ==0))
-   {
-      _dimumass = -1;
-   }
-   // else combine 4 vectors and get mass
-   else
-   {
-      // then two good muons found
-      Vec4 v1 = event[_leadingMuI].p();
-      Vec4 v2 = event[_leadingMuBarI].p();
-      // apply DeltaR cut
-      if(_passedDeltaRCut(v1,v2) == false) 
-      {
-         _dimumass = -1;
-      }
-      else
-      {
-         _twoMuons = true;
-         _dimumass = (v1 + v2).mCalc();
-         _leadingMuMother = event[event[_leadingMuI].mother1()].id();
-         _leadingMuBarMother = event[event[_leadingMuBarI].mother1()].id();
-         // std::cout<< "Mu- mother index = "<< event[_leadingMuI].mother1() << std::endl;
-         // std::cout<< "Mu+ mother index = "<< event[_leadingMuBarI].mother1() << std::endl;
-         // if (event[_leadingMuI].mother1() != event[_leadingMuBarI].mother1()) {++_nMatch; _dimumass =  -1;}
-      }
-   }
-   _h1D->Fill(_dimumass);
-}
+   if ((abs(event[index].id()) != 13) ) return; // skip if not muon
+   // if (event[index].status()<=0) return; // skip if negative status
+   
+   // Particle Cuts
+   EtaCut etaCut(1.506);
+   PtCut pTCut(3.);
+   if (etaCut.failed(event[index])) return; // skip if failed eta cut
+   if (pTCut.failed(event[index])) return; // skip if failed pt cut
 
-//------------------------------------------------------------------------------c
-const bool DiMuonMass::_muOutDet(Particle& particle)
-{
-   if (abs(particle.eta()) >= _etaCut)
-   {
-      // std::cout<<"outside detector"<<std::endl;
-      return true; // mu outside detector
-   }
-   else
-   {
-      // std::cout<<"in detector"<<std::endl;
-      return false; // mu inside detector
-   }
-}
+   // if passed eta and pT cut, update leading mu pT   
+   this->updateLeadingMu(event[index],index);
+   
+   if (_updated==false) return; // if no changes made
+   if (_leadingMuPt == 0) return; // nothing to compute 
+   if (_leadingMuBarPt ==0) return; // nothing to compute 
 
-//------------------------------------------------------------------------------c
-const bool DiMuonMass::_passedPtCut(Particle& particle)
-{
-   if (particle.pT() > _pTCut)
-   {
-      return true; 
-   }
-   else
-   {
-      return false;
-   }
-}
+   _twoMuons = true; // now we have two OS good muons
 
-const bool DiMuonMass::_passedDeltaRCut(Vec4 v1, Vec4 v2)
-{
-   if ( abs(RRapPhi(v1,v2)) < _deltaRCut)
-   {
-      return true;
-   }
-   else
-   {
-      return false;
-   }
-}
+   // compute the mass
+   Vec4 v1 = event[_leadingMuI].p();
+   Vec4 v2 = event[_leadingMuBarI].p();
+   _dimumass = (v1 + v2).mCalc();
+   std::cout<<"DiMuMass = " << _dimumass << std::endl;
 
-//------------------------------------------------------------------------------c
-const int DiMuonMass::getNMatch()
-{
-   return _nMatch;
+   _leadingMuMotherI = event[_leadingMuI].mother1();
+   _leadingMuBarMotherI = event[_leadingMuBarI].mother1();
+
+   _leadingMuMotherPDG = event[_leadingMuMotherI].id();
+   _leadingMuBarMotherPDG = event[_leadingMuBarMotherI].id();
 }
 
 } // end namespace DarkPhotons
 
 } // end namespace Pythia8
 
-#endif //DarkPhotons_dimuonmass_
+#endif //DarkPhotons_dimuonmass_H

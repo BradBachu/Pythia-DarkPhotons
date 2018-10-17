@@ -1,0 +1,26 @@
+! mu+ mu- production at the LHC
+Beams:idA = 2212  ! first incoming beam is a 2212, i.e. a proton.
+Beams:idB = 2212  ! second beam is also a proton.
+Beams:eCM = 13000.   ! the cm energy of collisions.
+
+#SoftQCD:nonDiffractive = on
+SoftQCD:inelastic = on
+
+
+433:mayDecay = on
+100443:mayDecay = on 
+30443:mayDecay = on
+553:mayDecay = on
+100553:mayDecay = on
+200553:mayDecay = on
+111:mayDecay = on
+113:mayDecay = on
+213:mayDecay = on
+221:mayDecay = on
+331:mayDecay = on
+223:mayDecay = on
+333:mayDecay = on
+211:mayDecay = on
+130:mayDecay = on
+321:mayDecay = on
+310:mayDecay = on
