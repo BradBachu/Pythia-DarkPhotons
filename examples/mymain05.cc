@@ -41,6 +41,7 @@
 #include "DarkPhotons/L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4.h"
 #include "DarkPhotons/LeadingMu_OS_Good.h"
 #include "DarkPhotons/ALICE_DoubleMu.h"
+#include "DarkPhotons/LHCb_DoubleMu.h"
 
 
 using namespace Pythia8; // Let Pythia8:: be implicit.
@@ -98,21 +99,6 @@ void SortMothers(DiMuonMass dimuonmass, TH1D* hSameMother[], int size, TH1D* hDi
 void OppSignSpectrum(TH1D* hSameMother[], int size, TH1D* hDiffMother , TH1D* hSameMotherExtra)
 {
 
-   // h443->SetFillColor(kRed);           h443->Write();
-   // h100443->SetFillColor(kRed+1);      h100443->Write();
-   // h30443->SetFillColor(kRed+2);       h30443->Write();
-   // h553->SetFillColor(kBlue);          h553->Write();
-   // h100553->SetFillColor(kBlue+1);     h100553->Write();
-   // h200553->SetFillColor(kBlue+2);     h200553->Write();
-   // h111->SetFillColor(kGreen);         h111->Write();
-   // h130->SetFillColor(kBlack);         h130->Write();
-   // h113->SetFillColor(kOrange);        h113->Write();
-   // h213->SetFillColor(kOrange+8);      h213->Write();
-   // h221->SetFillColor(kViolet);        h221->Write();
-   // h331->SetFillColor(kViolet+1);      h331->Write();
-   // h223->SetFillColor(kTeal);          h223->Write();
-   // h333->SetFillColor(kTeal+2);        h333->Write();
-
    hSameMotherExtra->SetFillColor(kGray);
 
    TCanvas* c = new TCanvas();
@@ -138,7 +124,6 @@ void OppSignSpectrum(TH1D* hSameMother[], int size, TH1D* hDiffMother , TH1D* hS
    c->Write();
 }
 
-
 int main(int argc, char* argv[]) 
 { 
    // Create the ROOT application environment. 
@@ -151,10 +136,11 @@ int main(int argc, char* argv[])
    TFile *outFile = new TFile(outname, "RECREATE");   
 
    Pythia pythia;
-   // pythia.readFile("DarkPhotons/pythiaSettings.cmnd");
-   pythia.readFile("DarkPhotons/ALICE_settings.cmnd");
+   pythia.readFile("DarkPhotons/pythiaSettings.cmnd");
+   // pythia.readFile("DarkPhotons/ALICE_settings.cmnd");
+   pythia.readString("Random:seed = " + std::to_string(seed));
    pythia.init();
-   int nEvents =500000;
+   int nEvents =20000;
 
    std::map<int,std::string> pdgParticle;
    pdgParticle[443] = "J/#Psi";
@@ -172,6 +158,7 @@ int main(int argc, char* argv[])
    pdgParticle[213] = "#rho(770)^{+}";
 
    pdgParticle[221] = "#eta";
+
    pdgParticle[331] = "#eta'";
 
    pdgParticle[223] = "#omega(782)";
@@ -180,40 +167,22 @@ int main(int argc, char* argv[])
 
          
    // Histograms
-   // Number of Muons
-   TH1D* h_MuTot_all = new TH1D("hMuTot_all", "Total No. of #mu^{#pm}", 20, 0, 20);
-   TH1D* h_NMu_all = new TH1D("h_NMu_all", "No. of #mu^{-}", 20, 0, 20);
-   TH1D* h_NMuBar_all = new TH1D("h_NMuBar", "No. of #mu^{-}", 20, 0, 20);
-
-   TH1D* h_MuTot_t1 = new TH1D("h_MuTot_t1", "Total No. of Muons", 10, 0, 10);
-   TH1D* h_NMu_t1 = new TH1D("h_NMu_t1", "No. of #mu^{-}", 10, 0, 10);
-   TH1D* h_NMuBar_t1 = new TH1D("h_NMuBar_t1", "No. of #mu^{-}", 10, 0, 10);
-
-   // Muon pT
-   TH1D* h_MuPt_all = new TH1D("h_MuPt_all", "#mu^{-} p_{T}", 100,0,20);
-   TH1D* h_MuPt_t1 = new TH1D("h_MuPt_t1", "#mu^{-} p_{T}", 100,0,20);
-   TH1D* h_MuPt_t2 = new TH1D("h_MuPt_t2", "#mu^{-} p_{T}", 100,0,20);
-   TH1D* h_MuPt_t1_t2 = new TH1D("h_MuPt_t1_t2", "#mu^{-} p_{T}", 100,0,20);
-
-   // MuonBar pT
-   TH1D* h_MuBarPt_all = new TH1D("h_MuBarPt_all", "#mu^{+} p_{T}", 100,0,20);
-   TH1D* h_MuBarPt_t1 = new TH1D("h_MuBarPt_t1", "#mu^{+} p_{T}", 100,0,20);
-
    // pt eta phase space 
    TH2D* h2_MuPtEta_all = new TH2D("h2_MuPtEta_all", "#mu^{#pm}: p_{T} / #eta Phase space", 100,0.,10., 14,-7.,7.);
    TH2D* h2_MuPtEta_t1 = new TH2D("h2_MuPtEta_t1", "#mu^{#pm}: p_{T} / #eta Phase space", 100,0.,10., 14,-7.,7.);
 
-
-   int nbins = 100;
+   int nbins = 99;
    double xmin = 0.1;
    double xmax = 10.;
 
    // DiMuonMass
    TH1D* h1_DiMuMass_all = new TH1D("h1_DiMuMass_all", "M_{#mu#mu}",nbins,xmin,xmax);
-   TH1D* h1_DiMuMass_t1 = new TH1D("h1_DiMuMass_t1", "M_{#mu#mu}",nbins,xmin,xmax);
-   TH1D* h1_DiMuMass_t2 = new TH1D("h1_DiMuMass_t2", "M_{#mu#mu}",nbins,xmin,xmax);
-   TH1D* h1_DiMuMass_t1_t2 = new TH1D("h1_DiMuMass_t1_t2", "M_{#mu#mu}",nbins,xmin,xmax);
-   TH1D* h1_DiMuMass_ALICE = new TH1D("h1_DiMuMass_ALICE", "M_{#mu#mu}",nbins,xmin,xmax);
+   TH1D* h1_DiMuMass_CMS_eta2p4 = new TH1D("h1_DiMuMass_CMS_eta24", "M_{#mu#mu}; |#eta|<2.4",nbins,xmin,xmax);
+   TH1D* h1_DiMuMass_CMS_eta1p5 = new TH1D("h1_DiMuMass_CMS_eta15", "M_{#mu#mu}; |#eta|<1.5",nbins,xmin,xmax);
+   TH1D* h1_DiMuMass_CMS_eta2p4_dR1p4 = new TH1D("h1_DiMuMass_CMS_eta24_dR1p4", "M_{#mu#mu}; |#eta|<2.4 & #Delta R < 1.4",nbins,xmin,xmax);
+   TH1D* h1_DiMuMass_CMS_eta1p5_dR1p4 = new TH1D("h1_DiMuMass_CMS_eta15_dR1p4", "M_{#mu#mu}; |#eta|<1.5 & #Delta R < 1.4",nbins,xmin,xmax);
+   TH1D* h1_DiMuMass_LHCb = new TH1D("h1_DiMuMass_LHCb", "M_{#mu#mu}; 2<|#eta|<4.5 & pT > 0.5",nbins,xmin,xmax);
+   TH1D* h1_DiMuMass_ALICE = new TH1D("h1_DiMuMass_ALICE", "M_{#mu#mu}; 2.5 <|#eta|<4 & 1 < p_{T} < 5",nbins,xmin,xmax);
 
    // PDG Mothers
    TH1D* h443    = new TH1D("443",    "M_{#mu#mu}("+TString(pdgParticle[443])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
@@ -253,28 +222,22 @@ int main(int argc, char* argv[])
    h223->SetFillColor(kTeal);        //  h223->Write();
    h333->SetFillColor(kTeal+2);      //  h333->Write();
 
-
    // triggers
-   L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4 trigger1;
-   LeadingMu_OS_Good trigger2;
-   ALICE_DoubleMu triggerALICE;
-
-   // Analysis
-   MuonCounter mucount_all;
-   MuonCounter mucount_t1;
-   MuonPt muPt_all(h_MuPt_all);
-   MuonPt muPt_t1(h_MuPt_t1);
-   MuonPt muPt_t2(h_MuPt_t2);
-   MuonPt muPt_t1_t2(h_MuPt_t1_t2);
-   MuonPtEta muPtEta_all(h2_MuPtEta_all);
-   MuonPtEta muPtEta_t1(h2_MuPtEta_t1);
+   L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4 triggerHLTCMS_eta2p4(2.4);
+   L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4 triggerHLTCMS_eta1p5(1.5);
+   LeadingMu_OS_Good triggerCMS_eta2p4(0.,2.4,3.,0.);
+   LeadingMu_OS_Good triggerCMS_eta1p5(0.,1.5,3.,0.);
+   LeadingMu_OS_Good triggerLHCb(2.,4.5,0.5,0.); 
+   LeadingMu_OS_Good triggerALICE(2.5,4.,1.,5.);
 
    // Mass Analysis
-   DiMuonMass diMuMass_all(h1_DiMuMass_all);
-   DiMuonMass diMuMass_t1(h1_DiMuMass_t1);
-   DiMuonMass diMuMass_t2(h1_DiMuMass_t2);
-   DiMuonMass diMuMass_t1_t2(h1_DiMuMass_t1_t2);
-   DiMuonMass diMuMass_ALICE(h1_DiMuMass_ALICE);
+   // Note that the mass analysis does not use deltaR as a requirement.
+   DiMuonMass diMuMass_CMS_eta1p5(h1_DiMuMass_CMS_eta1p5,0.,1.5,3.,0.);
+   DiMuonMass diMuMass_CMS_eta2p4(h1_DiMuMass_CMS_eta2p4,0.,2.4,3.,0.);
+   DiMuonMass diMuMass_CMS_eta1p5_dR1p4(h1_DiMuMass_CMS_eta1p5_dR1p4,0.,1.5,3.,0.);
+   DiMuonMass diMuMass_CMS_eta2p4_dR1p4(h1_DiMuMass_CMS_eta2p4_dR1p4,0.,2.4,3.,0.);
+   DiMuonMass diMuMass_ALICE(h1_DiMuMass_ALICE,2.5,4.,1.,5.);
+   DiMuonMass diMuMass_LHCb(h1_DiMuMass_LHCb,2.,4.5,0.5,0.);
 
    // Begin event loop. Generate event; skip if generation aborted.
    for (int iEvent = 0; iEvent < nEvents; ++iEvent) 
@@ -282,78 +245,48 @@ int main(int argc, char* argv[])
       // Generate event. Skip if error
       if (!pythia.next()) {std::cout<<"Error in event generation" << std::endl; continue;} 
       // std::cout<< "--- Event " << iEvent << std::endl;
-
-      bool firedt1 = trigger1.fired(pythia.event);
-      bool firedt2 = trigger2.fired(pythia.event);
-      bool firedALICE = triggerALICE.fired(pythia.event);
-     
       // run the events through each analysis
       // set to true to get all events
-      // muon count
-      mucount_all.analyze(pythia.event,true);
-      mucount_t1.analyze(pythia.event,firedt1);
-      // muon pt
-      muPt_all.analyze(pythia.event, true);
-      muPt_t1.analyze(pythia.event, firedt1);
-      muPt_t2.analyze(pythia.event, firedt2);
-      muPt_t1_t2.analyze(pythia.event, (firedt1 && firedt2) );
-      // muon pt/eta
-      muPtEta_all.analyze(pythia.event,true);
-      muPtEta_t1.analyze(pythia.event,firedt1);
+
       // mass
-      diMuMass_all.analyze(pythia.event,true);
-      diMuMass_t1.analyze(pythia.event,firedt1);
-      diMuMass_t2.analyze(pythia.event,firedt2);
-      diMuMass_ALICE.analyze(pythia.event,(firedALICE));
-
+      diMuMass_CMS_eta1p5.analyze(pythia.event,triggerCMS_eta1p5.fired(pythia.event));
+      diMuMass_CMS_eta2p4.analyze(pythia.event,triggerCMS_eta2p4.fired(pythia.event));
+      diMuMass_CMS_eta1p5_dR1p4.analyze(pythia.event,triggerHLTCMS_eta1p5.fired(pythia.event));
+      diMuMass_CMS_eta2p4_dR1p4.analyze(pythia.event,triggerHLTCMS_eta2p4.fired(pythia.event));
+      diMuMass_ALICE.analyze(pythia.event,triggerALICE.fired(pythia.event));
+      diMuMass_LHCb.analyze(pythia.event,triggerLHCb.fired(pythia.event));
+      
       // Fill the histograms
-      h_MuTot_all->Fill(mucount_all.getTotMuons());
-      h_MuTot_t1->Fill(mucount_t1.getTotMuons());
-
-      h1_DiMuMass_all->Fill(diMuMass_all.getDiMuMass());
-      h1_DiMuMass_t1->Fill(diMuMass_t1.getDiMuMass());
-      h1_DiMuMass_t2->Fill(diMuMass_t2.getDiMuMass());
-      h1_DiMuMass_t1_t2->Fill(diMuMass_t1_t2.getDiMuMass());
+      h1_DiMuMass_CMS_eta1p5->Fill(diMuMass_CMS_eta1p5.getDiMuMass());
+      h1_DiMuMass_CMS_eta2p4->Fill(diMuMass_CMS_eta2p4.getDiMuMass());
+      h1_DiMuMass_CMS_eta1p5_dR1p4->Fill(diMuMass_CMS_eta1p5_dR1p4.getDiMuMass());
+      h1_DiMuMass_CMS_eta2p4_dR1p4->Fill(diMuMass_CMS_eta2p4_dR1p4.getDiMuMass());
+      h1_DiMuMass_LHCb->Fill(diMuMass_LHCb.getDiMuMass());
       h1_DiMuMass_ALICE->Fill(diMuMass_ALICE.getDiMuMass());
 
-      // hNMuons_vanilla->Fill(mucount_vanilla.getNMuons());
-      // hNAMuons_vanilla->Fill(mucount_vanilla.getNAMuons());
-
-      // hNMuons_scoutTrigger->Fill(mucount_scouting.getNMuons());
-      // hNAMuons_scoutTrigger->Fill(mucount_scouting.getNAMuons());
-      if (firedt1&&firedt2)
+      if (triggerHLTCMS_eta2p4.fired(pythia.event))
       {
-         std::cout<<"fired t1 and t2" << std::endl;
-         SortMothers(diMuMass_ALICE, hAll, 14, hDiffMother ,hSameMotherExtra);
+         std::cout<<"fired HLT trigger" << std::endl;
+         std::cout<<"DiMuMass = " << diMuMass_CMS_eta2p4_dR1p4.getDiMuMass() << std::endl;
+         SortMothers(diMuMass_CMS_eta2p4_dR1p4, hAll, 14, hDiffMother ,hSameMotherExtra);
       }      
    }
 
-
    OppSignSpectrum(hAll,14,hDiffMother,hSameMotherExtra);
 
-   std::cout<<"L1 Trigger Efficiency = " << trigger1.getEfficiency() << std::endl;
-   std::cout<<"N fired = "<< trigger1.getNFired() << std::endl;
-   std::cout << "N Events = " << trigger1.getNEvents() << std::endl;
-   std::cout<<"t2: N Events = " << trigger2.getNFired() << std::endl;
+   std::cout<<"L1 Trigger Efficiency = " << triggerHLTCMS_eta2p4.getEfficiency() << std::endl;
+   std::cout<<"N fired = "<< triggerHLTCMS_eta2p4.getNFired() << std::endl;
+   std::cout << "N Events = " << triggerHLTCMS_eta2p4.getNEvents() << std::endl;
+   std::cout<<"LHCb Trigger Efficiency = " << triggerLHCb.getEfficiency() << std::endl;
    std::cout<<"ALICE Trigger Efficiency = " << triggerALICE.getEfficiency() << std::endl;
 
-
-   DrawHists(h_MuPt_all,h_MuPt_t1,h_MuPt_t2,h_MuPt_t1_t2);
-   DrawHists(h1_DiMuMass_all, h1_DiMuMass_t1, h1_DiMuMass_t2, h1_DiMuMass_t1_t2);
-   // TCanvas* c3 = new TCanvas();
-   // hNMuons_vanilla->Draw();
-   h2_MuPtEta_all->Write();
-   h2_MuPtEta_t1->Write();
-
-   TCanvas* c2 = new TCanvas(2);
-   c2->Divide(2,1);
-   c2->cd(1);
-   h2_MuPtEta_all->Draw("COLZ");
-   c2->cd(2);
-   h2_MuPtEta_t1->Draw("COLZ");
-   c2->Write();
-
-   TCanvas* c3 = new TCanvas();
+   // Fill the histograms
+   h1_DiMuMass_CMS_eta1p5->Write();
+   h1_DiMuMass_CMS_eta2p4->Write();
+   h1_DiMuMass_CMS_eta1p5_dR1p4->Write();
+   h1_DiMuMass_CMS_eta2p4_dR1p4->Write();
+   h1_DiMuMass_LHCb->Write();
+   h1_DiMuMass_ALICE->Write();
 
    delete outFile;
 }

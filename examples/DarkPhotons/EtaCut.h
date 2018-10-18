@@ -39,7 +39,7 @@ public:
          return true; 
       }
       // else we must check within a range
-      else if ((abs(particle.eta()) < _etaMax) && (abs(particle.eta()) > _etaMin))
+      else if ((abs(particle.eta()) < _etaMax) && (abs(particle.eta()) > _etaMin) &&  (_etaMin != 0.))
       {
          return true;
       }

@@ -1,14 +1,14 @@
 //------------------------------------------------------------------------------
-/// \file L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4.h
-// Reproduce the triggering for scouting data
+/// \file LHCb_DoubleMu.h
+// Change rapidity requirements to match ALICE so that we can look at MC comparison
 //------------------------------------------------------------------------------
 
-#ifndef DarkPhotons_L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4_H
-#define DarkPhotons_L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4_H
+#ifndef DarkPhotons_LHCb_DoubleMu_H
+#define DarkPhotons_LHCb_DoubleMu_H
 
 #include "Pythia8/Pythia.h"
 
-// DarkPhoton
+// DarkPhoton`
 #include "PtCut.h"
 #include "EtaCut.h"
 
@@ -18,7 +18,7 @@ namespace Pythia8
 namespace DarkPhotons
 {
 
-class L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4: public Trigger
+class LHCb_DoubleMu: public Trigger
 {
 
 private:
@@ -27,8 +27,6 @@ private:
    bool _passed = false;
 
    double _deltaR = 1.4;
-
-   double _eta = 2.4;
 
    virtual void initialize();
 
@@ -49,10 +47,9 @@ protected:
 public:
 
    // constructor
-   L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4(double eta)
-   :_eta(eta)
+   LHCb_DoubleMu()
    {
-      std::cout<<"Created L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4 trigger" << std::endl;
+      std::cout<<"Created LHCb_DoubleMu trigger" << std::endl;
    }
 
    // return true if trigger fired
@@ -94,7 +91,7 @@ public:
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::initialize()
+void LHCb_DoubleMu::initialize()
 {
    _passed = false;
    _v_mu.clear();
@@ -102,11 +99,11 @@ void L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::initialize()
 }
 
 //------------------------------------------------------------------------------
-void L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::_sortMuons(Event& event)
+void LHCb_DoubleMu::_sortMuons(Event& event)
 {
    // EtaCut _etaCut(1.506);
-   EtaCut _etaCut(2.4);
-   PtCut _pTCut(3.);
+   EtaCut _etaCut(2.,4.5);
+   PtCut _pTCut(0.5, 0);
 
    // loop and sort good muons into mu+ and mu-
    for (int i = 0; i < event.size(); ++i)
@@ -129,7 +126,7 @@ void L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::_sortMuons(Event& event)
 }
 
 //------------------------------------------------------------------------------
-void L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::_saveMuonIndex(Event& event, int i)
+void LHCb_DoubleMu::_saveMuonIndex(Event& event, int i)
 {
    // determine if muon is mu-
    if (event[i].id() ==13)
@@ -147,8 +144,8 @@ void L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::_saveMuonIndex(Event& event, int i)
    }
 }
 
-//------------------------------------------------------------------------------
-bool L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::_checkDeltaRs(Event& event)
+//------------------------------------------------------------------------------ 
+bool LHCb_DoubleMu::_checkDeltaRs(Event& event)
 {
    // loop through deltaRs and ensure there is at least 1 canidate
    // with deltaR<1.4
@@ -178,7 +175,7 @@ bool L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::_checkDeltaRs(Event& event)
 }
 
 //------------------------------------------------------------------------------
-bool L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::_checkNGoodMuons()
+bool LHCb_DoubleMu::_checkNGoodMuons()
 {
    if ((_v_mu.size() >= 1) && (_v_mubar.size() >=1))
    {
@@ -194,4 +191,4 @@ bool L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::_checkNGoodMuons()
 
 } // namespace Pythia8
 
-#endif // DarkPhotons_L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4_H
+#endif // DarkPhotons_LHCb_DoubleMu_H

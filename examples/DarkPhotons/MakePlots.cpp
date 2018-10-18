@@ -49,13 +49,19 @@ void MakePlots()
    pdgParticle[333] = "#phi(1020)";
    pdgParticle[310] = "K_{S}^{0}";
 
-   TFile* file = new TFile("../out19.root");
+   TFile* file = new TFile("../out22.root");
    TString shists[14] = {"443","100443","30443","553","100553","200553","111","130","113","213","221","331","223","333"};   
    int pdghists[14] = {443,100443,30443,553,100553,200553,111,310,113,213,221,331,223,333};   
    Color_t chists[14] = {kRed, kRed+1, kRed+2, kBlue, kBlue+1, kBlue+2,kGreen,kBlack,kOrange,kOrange+8,kViolet,kViolet+1,kTeal,kTeal+2};
    THStack* stack = new THStack("hmain", "M_{#mu#mu}");
    TCanvas* c = new TCanvas();
    TLegend *legend = new TLegend(.60, .60, .8,.8);
+
+   TH1* hall = (TH1*) file->Get("h1_DiMuMass_ALICE");
+   hall->SetMarkerStyle(20);
+   hall->SetMarkerSize(1);
+   hall->SetTitle("M_{#mu#mu}");
+   hall->Draw("same p e");
 
    for (int i = 0; i < 14; ++i)
    {
@@ -77,11 +83,6 @@ void MakePlots()
    }
 
    // stack->Draw("nostack");
-   TH1* hall = (TH1*) file->Get("h1_DiMuMass_t1_t2");
-   hall->SetMarkerStyle(20);
-   hall->SetMarkerSize(1);
-   hall->SetTitle("M_{#mu#mu}");
-   hall->Draw("same p e");
    legend->Draw("same");
    // for (int i = 0; i < count; ++i)
    // {

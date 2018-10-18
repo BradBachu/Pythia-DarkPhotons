@@ -53,12 +53,23 @@ private:
 
    bool _updated = false;
 
+   double _etaMin = 0.; // cut on all particles
+   
+   double _etaMax = 2.4; // cut on all particles
+   
+   double _pTMin = 3.; // cut on all particles
+   
+   double _pTMax = 0.; // cut on all particles
+
    TH1D* _h = 0;
 
 public:
 
    DiMuonMass(TH1D* h)
       :_h(h) {} ;
+
+   DiMuonMass(TH1D* h, double etaMin, double etaMax, double pTMin, double pTMax)
+      :_h(h),_etaMin(etaMin),_etaMax(etaMax),_pTMin(pTMin),_pTMax(pTMax) {} ;
 
    virtual ~DiMuonMass() {};
 
@@ -67,6 +78,16 @@ public:
    virtual void eventAnalysis(Event& event, int index);
 
    void updateLeadingMu(Particle& particle, int index);
+
+   void setPtCuts(double pTMin, double pTMax)
+   {
+      _pTMin = pTMin; _pTMax = pTMax;
+   }
+
+   void setEtaCuts(double etaMin, double etaMax)
+   {
+      _etaMin = etaMin; _etaMax = etaMax;
+   }
 
    int getLeadMuMotherI()
    {
@@ -168,8 +189,10 @@ void DiMuonMass::eventAnalysis(Event& event, int index)
    // if (event[index].status()<=0) return; // skip if negative status
    
    // Particle Cuts
-   EtaCut etaCut(1.506);
-   PtCut pTCut(3.);
+   // EtaCut etaCut(1.506);
+   // PtCut pTCut(3.);
+   EtaCut etaCut(_etaMin,_etaMax);
+   PtCut pTCut(_pTMin,_pTMax);
    if (etaCut.failed(event[index])) return; // skip if failed eta cut
    if (pTCut.failed(event[index])) return; // skip if failed pt cut
 
@@ -186,7 +209,6 @@ void DiMuonMass::eventAnalysis(Event& event, int index)
    Vec4 v1 = event[_leadingMuI].p();
    Vec4 v2 = event[_leadingMuBarI].p();
    _dimumass = (v1 + v2).mCalc();
-   std::cout<<"DiMuMass = " << _dimumass << std::endl;
 
    _leadingMuMotherI = event[_leadingMuI].mother1();
    _leadingMuBarMotherI = event[_leadingMuBarI].mother1();

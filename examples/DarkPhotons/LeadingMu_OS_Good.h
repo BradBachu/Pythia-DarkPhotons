@@ -40,6 +40,14 @@ private:
    void _findLeadingMuons(Event& event);
 
    void _updateLeadingMu(Particle& particle, int index);
+   
+   double _etaMin = 0.; // cut on all particles
+   
+   double _etaMax = 2.4; // cut on all particles
+   
+   double _pTMin = 3.; // cut on all particles
+   
+   double _pTMax = 0.; // cut on all particles
 
 protected:
    // store the index of the leading mu+ and mu- here to avoid looking for it again
@@ -47,7 +55,8 @@ protected:
 public:
 
    // constructor
-   LeadingMu_OS_Good()
+   LeadingMu_OS_Good(double etaMin, double etaMax, double pTMin, double pTMax)
+   :_etaMin(etaMin), _etaMax(etaMax),_pTMin(pTMin),_pTMax(pTMax)
    {
       std::cout<<"Created LeadingMu_OS_Good trigger" << std::endl;
    }
@@ -96,8 +105,8 @@ void LeadingMu_OS_Good::_findLeadingMuons(Event& event)
 {
    
    // EtaCut _etaCut(1.506);
-   EtaCut _etaCut(2.4);
-   PtCut _pTCut(3.);   
+   EtaCut _etaCut(_etaMin,_etaMax);
+   PtCut _pTCut(_pTMin, _pTMax);   
 
    // loop through and select leading mu+ and mu-
    for (int i = 0; i < event.size(); ++i)

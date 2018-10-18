@@ -3,12 +3,17 @@ Beams:idA = 2212  ! first incoming beam is a 2212, i.e. a proton.
 Beams:idB = 2212  ! second beam is also a proton.
 Beams:eCM = 2760.   ! the cm energy of collisions.
 
-ParticleDecays:limitTau0 = off
+#ParticleDecays:limitTau0 = off
+#ParticleDecays:allowPhotonRadiation = on
 
+#PhotonCollision:gmgm2mumu = on
 
+#SoftQcd:nonDiffractive = on
 
-Charmonium:all = on
-Bottomonium:all = on
+Onia:all = on
+#Charmonium:all = on
+#Bottomonium:all = on
+
 
 # J/Psi(1S)
 443:onMode = off
