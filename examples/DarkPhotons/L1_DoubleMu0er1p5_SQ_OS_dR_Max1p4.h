@@ -105,7 +105,7 @@ void L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::initialize()
 void L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::_sortMuons(Event& event)
 {
    // EtaCut _etaCut(1.506);
-   EtaCut _etaCut(2.4);
+   EtaCut _etaCut(_eta);
    PtCut _pTCut(3.);
 
    // loop and sort good muons into mu+ and mu-

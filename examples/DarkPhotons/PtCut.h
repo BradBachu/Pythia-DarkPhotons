@@ -33,12 +33,12 @@ public:
    // return true if passed pT requirements
    const bool passed(Particle& particle)
    {
-      if ((particle.pT() > _pTMin)&&(_pTMax == 0))
+      if ((particle.pT() > _pTMin)&&(_pTMax == 0.))
       {
          // std::cout<<"Passed pT cut" << std::endl;
          return true; 
       }
-      else if ((particle.pT() > _pTMin) && (particle.pT() < _pTMax))
+      else if ((particle.pT() > _pTMin) && (particle.pT() < _pTMax) && (_pTMax != 0.))
       {
          return true; 
       }

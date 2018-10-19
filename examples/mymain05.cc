@@ -165,7 +165,6 @@ int main(int argc, char* argv[])
    pdgParticle[333] = "#phi(1020)";
    pdgParticle[130] = "K_{S}^{0}";
 
-         
    // Histograms
    // pt eta phase space 
    TH2D* h2_MuPtEta_all = new TH2D("h2_MuPtEta_all", "#mu^{#pm}: p_{T} / #eta Phase space", 100,0.,10., 14,-7.,7.);
