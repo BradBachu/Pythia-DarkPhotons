@@ -43,7 +43,7 @@ void AddHists()
    for (int i = 1; i < 10; ++i)
    {
 
-      TFile *temp = new TFile(TString("out" + std::to_string(i) + ".root"));
+      TFile *temp = new TFile(TString("../out" + std::to_string(i) + ".root"));
       if (temp->IsOpen())
       {
          printf("File opened successfully \n");
