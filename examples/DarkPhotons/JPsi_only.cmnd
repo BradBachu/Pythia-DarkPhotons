@@ -1,0 +1,18 @@
+! mu+ mu- production at the LHC
+Beams:idA = 2212  ! first incoming beam is a 2212, i.e. a proton.
+Beams:idB = 2212  ! second beam is also a proton.
+Beams:eCM = 13000.   ! the cm energy of collisions.
+
+# process p_p.443
+Charmonium:gg2ccbar(3S1)[3S1(1)]g = on,off
+Charmonium:gg2ccbar(3S1)[3S1(8)]g = on,off
+Charmonium:qg2ccbar(3S1)[3S1(8)]q = on,off
+Charmonium:qqbar2ccbar(3S1)[3S1(8)]g = on,off
+Charmonium:gg2ccbar(3S1)[1S0(8)]g = on,off
+Charmonium:qg2ccbar(3S1)[1S0(8)]q = on,off
+Charmonium:qqbar2ccbar(3S1)[1S0(8)]g = on,off
+Charmonium:gg2ccbar(3S1)[3PJ(8)]g = on,off
+Charmonium:qg2ccbar(3S1)[3PJ(8)]q = on,off
+Charmonium:qqbar2ccbar(3S1)[3PJ(8)]g = on,off 
+
+113:oneChannel = 1 0.0000301671 0 13 -13                # 160109.decays.nb.

@@ -55,6 +55,10 @@ public:
       std::cout<<"Created L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4 trigger" << std::endl;
    }
 
+   L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4(double eta, double deltaR)
+   :_eta(eta), _deltaR(deltaR)
+   {};
+
    // return true if trigger fired
    virtual bool fired(Event& event)
    {
@@ -90,6 +94,11 @@ public:
       return _v_mubar;
    }
 
+   void setDeltaR(double deltaR)
+   {
+      _deltaR = deltaR;
+   }
+
 };
 
 //------------------------------------------------------------------------------
@@ -106,7 +115,7 @@ void L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::_sortMuons(Event& event)
 {
    // EtaCut _etaCut(1.506);
    EtaCut _etaCut(_eta);
-   PtCut _pTCut(3.);
+   // PtCut _pTCut(3.);
 
    // loop and sort good muons into mu+ and mu-
    for (int i = 0; i < event.size(); ++i)
@@ -120,7 +129,7 @@ void L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4::_sortMuons(Event& event)
          // look at the range of mother indices for each muon
          // std::cout << "Mu index = " << i << "; Mother1 = " << event[i].mother1() << "; Mother2 = "<< event[i].mother2() << std::endl;
          if (_etaCut.failed(event[i])) continue;
-         if (_pTCut.failed(event[i])) continue; 
+         // if (_pTCut.failed(event[i])) continue; 
          // std::cout<<"Good muon"<<std::endl;
          // save them in the right vector
          this->_saveMuonIndex(event,i);

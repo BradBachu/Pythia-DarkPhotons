@@ -7,6 +7,7 @@
 #define DarkPhotons_muonpteta_H
 
 #include "Analysis.h"
+#include "TH2.h"
 
 namespace Pythia8
 {
@@ -27,7 +28,7 @@ public:
 
    //constructor
    MuonPtEta(TH2D* h2_MuEta)
-   :_h2_MuEta(h2_MuEta) {};
+     :_h2_MuEta(h2_MuEta) {};
 
    virtual ~MuonPtEta() {};
 

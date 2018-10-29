@@ -28,6 +28,7 @@ namespace DarkPhotons
 
 class DiMuonMass : public Analysis
 {
+   // friend class LHCbDiMuMass;
 
 private:
 
@@ -47,7 +48,7 @@ private:
 
    int _leadingMuBarMotherPDG = 0; // leading mu+ mother PDG
 
-   double _dimumass = 0.0; // di-muon mass
+   double _dimumass = -1.0; // di-muon mass
 
    bool _twoMuons = false;
 
@@ -61,23 +62,22 @@ private:
    
    double _pTMax = 0.; // cut on all particles
 
-   TH1D* _h = 0;
+   void updateLeadingMu(Particle& particle, int index);
+
+   int _nSignal = 0;
 
 public:
 
-   DiMuonMass(TH1D* h)
-      :_h(h) {} ;
-
-   DiMuonMass(TH1D* h, double etaMin, double etaMax, double pTMin, double pTMax)
-      :_h(h),_etaMin(etaMin),_etaMax(etaMax),_pTMin(pTMin),_pTMax(pTMax) {} ;
+   DiMuonMass() {};
+      
+   DiMuonMass(double etaMin, double etaMax, double pTMin, double pTMax)
+      :_etaMin(etaMin),_etaMax(etaMax),_pTMin(pTMin),_pTMax(pTMax) {} ;
 
    virtual ~DiMuonMass() {};
 
    virtual void initialize();
 
    virtual void eventAnalysis(Event& event, int index);
-
-   void updateLeadingMu(Particle& particle, int index);
 
    void setPtCuts(double pTMin, double pTMax)
    {
@@ -129,6 +129,27 @@ public:
       return _dimumass;
    }
 
+   const int getNSignal()
+   {
+      return _nSignal;
+   }
+
+   const void fillMass(TH1D* h)
+   {
+      if (_dimumass != -1)
+      {
+         h->Fill(_dimumass);
+      }
+   }
+
+   const void fillBEMMass(TH1D* h)
+   {
+      if ((_dimumass != -1)&&(_leadingMuMotherPDG == _leadingMuBarMotherPDG))
+      {
+         h->Fill(_dimumass);
+      }
+   }
+
 };
 
 //------------------------------------------------------------------------------
@@ -140,6 +161,8 @@ void DiMuonMass::initialize()
    _leadingMuBarPt = 0.;
    _leadingMuI = 0;
    _leadingMuBarI = 0;
+   _leadingMuMotherPDG= 0;
+   _leadingMuBarMotherPDG = 0;
    _dimumass = -1.;
    _twoMuons = false;
 }
@@ -209,12 +232,13 @@ void DiMuonMass::eventAnalysis(Event& event, int index)
    Vec4 v1 = event[_leadingMuI].p();
    Vec4 v2 = event[_leadingMuBarI].p();
    _dimumass = (v1 + v2).mCalc();
-
+   _nSignal += 1;
    _leadingMuMotherI = event[_leadingMuI].mother1();
    _leadingMuBarMotherI = event[_leadingMuBarI].mother1();
 
    _leadingMuMotherPDG = event[_leadingMuMotherI].id();
    _leadingMuBarMotherPDG = event[_leadingMuBarMotherI].id();
+
 }
 
 } // end namespace DarkPhotons

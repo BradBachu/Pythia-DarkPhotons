@@ -30,18 +30,13 @@ public:
    EtaCut(double etaMin, double etaMax)
       :_etaMax(etaMax), _etaMin(etaMin) {};
 
-   // return true if passed pT requirements
+   // return true if passed eta requirements
    const bool passed(Particle& particle)
    {
-      if ((abs(particle.eta()) < _etaMax) && (_etaMin == 0.))
+      if ((abs(particle.eta()) <= _etaMax) && abs(particle.eta())  >= _etaMin)
       {
          // std::cout<<"Passed Eta Cut"<< std::endl;
          return true; 
-      }
-      // else we must check within a range
-      else if ((abs(particle.eta()) < _etaMax) && (abs(particle.eta()) > _etaMin) &&  (_etaMin != 0.))
-      {
-         return true;
       }
       else
       {
@@ -49,7 +44,7 @@ public:
       }
    }
 
-   // return false if failed pT requirements
+   // return false if failed eta requirements
    const bool failed(Particle& particle)
    {
       return !(this->passed(particle));
