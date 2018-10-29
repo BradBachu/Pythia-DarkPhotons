@@ -33,6 +33,8 @@ class DiMu2LpTOSMass : public Analysis
 private:
 
    double _leadingPt = 0.0; // leading mu pt
+
+   double _leadingEta = 0.0;
     
    double _sleadingPt = 0.0; // second leading mu pt
 
@@ -49,6 +51,7 @@ private:
    int _sleadingMotherPDG = 0; // second leading mu mother PDG
 
    double _dimumass = -1.0; // di-muon mass
+   double _dimumassSS = -1.0; // di-muon mass
 
    bool _twogoodOSMuons = false;
    bool _twogoodSSMuons = false;
@@ -116,14 +119,14 @@ public:
       return _leadingI;
    }
 
+   double getLeadingEta()
+   {
+      return _leadingEta;
+   }
+
    int getSLeadingMuBarI()
    {
       return _sleadingI;
-   }
-
-   const bool isDiMuEvent()
-   {
-      return _twoMuons;
    }
 
    const double getDiMuMass()
@@ -134,6 +137,14 @@ public:
    const void fillMass(TH1D* h)
    {
       if ((_dimumass != -1)&&(_twogoodOSMuons))
+      {
+         h->Fill(_dimumass);
+      }
+   }
+
+   const void fillBEMMass(TH1D* h)
+   {
+      if ((_dimumass != -1)&&(_twogoodOSMuons)&&(_leadingMotherPDG == _sleadingMotherPDG)&&(_leadingMotherPDG!=0))
       {
          h->Fill(_dimumass);
       }
@@ -158,6 +169,15 @@ public:
       return _twogoodOSMuons;
    }
 
+   double getDeltaR(Event& event)
+   {
+      if ((_twogoodOSMuons) && (_leadingMotherPDG == _sleadingMotherPDG))
+      {
+         // compute and return delta R
+         return RRapPhi(event[_leadingI].p(),event[_sleadingI].p());
+      }
+   }
+
 };
 
 //------------------------------------------------------------------------------
@@ -166,14 +186,18 @@ public:
 void DiMu2LpTOSMass::initialize()
 {
    _leadingPt = 0.;
+   _leadingEta = 0.;
    _sleadingPt = 0.;
    _leadingI = 0;
    _sleadingI = 0;
+   _sleadingMotherI = 0;
+   _leadingMotherI =0 ;
    _leadingMotherPDG= 0;
    _sleadingMotherPDG = 0;
    _dimumass = -1.;
    _twogoodOSMuons = false;
    _twogoodSSMuons = false;
+   _ngoodmu = 0;
 }
 
 
@@ -200,6 +224,7 @@ void DiMu2LpTOSMass::eventAnalysis(Event& event, int index)
       // new muon takes the leading pt position
       _leadingPt = event[index].pT();
       _leadingI = index;
+      _leadingEta = event[index].eta();
       _leadingMotherI = event[index].mother1();
       _leadingMotherPDG = event[_leadingMotherI].id();
    }
@@ -208,7 +233,7 @@ void DiMu2LpTOSMass::eventAnalysis(Event& event, int index)
       _sleadingPt = event[index].pT();
       _sleadingI = index;
       _sleadingMotherI = event[index].mother1();
-      _sleadingMotherPDG = event[_sleadingMotherI]();
+      _sleadingMotherPDG = event[_sleadingMotherI].id();
    }
    else
    {
@@ -228,14 +253,13 @@ void DiMu2LpTOSMass::eventAnalysis(Event& event, int index)
       Vec4 v2 = event[_sleadingI].p();
       _dimumassSS = (v1 + v2).mCalc();  
    }
-   else 
+   else if ( abs(event[_leadingI].id()) == abs(event[_sleadingI].id()) )
    {
       _twogoodSSMuons = false;
       _twogoodOSMuons = true;
       Vec4 v1 = event[_leadingI].p();
       Vec4 v2 = event[_sleadingI].p();
       _dimumass = (v1 + v2).mCalc();
-      
    }
 }
 

@@ -67,9 +67,9 @@ private:
    
    double _etaMax = 4.5 ;// cut on all particles
    
-   double _pTMuMin = 0.5; // cut on all particles
+   double _pTMuMin = 1; // cut on all particles
    
-   double _pMuMin = 1.;
+   double _pMuMin = 20.;
 
    double _pTAMin = 1.; // cut on all particles
 
@@ -157,7 +157,7 @@ public:
 
    const void fillBEMMass(TH1D* h)
    {
-      if ((_dimumass != -1)&&(_twogoodOSMuons)&&(_leadingMotherPDG == _sleadingMotherPDG))
+      if ((_dimumass != -1)&&(_twogoodOSMuons)&&(_leadingMotherPDG == _sleadingMotherPDG)&&(_leadingMotherPDG!=0))
       {
          h->Fill(_dimumass);
       }
@@ -243,7 +243,7 @@ void LHCbDiMuMass::eventAnalysis(Event& event, int index)
       _twogoodOSMuons = false;
       _twogoodSSMuons = true;
    }
-   else 
+   else if (( abs(event[_leadingI].id()) == abs(event[_sleadingI].id())) && (_leadingMotherPDG == _sleadingMotherPDG)) // same mother
    {
       _dimumass = -1.0;
       Vec4 v1 = event[_leadingI].p();
