@@ -35,7 +35,9 @@
 #include "DarkPhotons/MuonCounter.h"
 #include "DarkPhotons/MuonPt.h"
 #include "DarkPhotons/MuonPtEta.h"
+#include "DarkPhotons/LeadingMuonPtEta.h"
 #include "DarkPhotons/DiMuonMass.h"
+#include "DarkPhotons/LHCbDiMuMass.h"
 
 // DarkPhoton Triggers
 #include "DarkPhotons/L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4.h"
@@ -93,7 +95,6 @@ void SortMothers(DiMuonMass dimuonmass, TH1D* hSameMother[], int size, TH1D* hDi
    // they have the same mother and we did not label it
    std::cout<< "Matched but not accounted for ID = " << std::to_string(dimuonmass.getLeadingMuMotherPDG())  << std::endl;
    hSameMotherExtra->Fill(dimuonmass.getDiMuMass());
-
 }
 
 void OppSignSpectrum(TH1D* hSameMother[], int size, TH1D* hDiffMother , TH1D* hSameMotherExtra)
@@ -117,11 +118,20 @@ void OppSignSpectrum(TH1D* hSameMother[], int size, TH1D* hDiffMother , TH1D* hS
 
    hs->Add(hDiffMother);
    hs->Add(hSameMotherExtra);
-  hs->Draw();
-  legend->Draw("same");
+   hs->Draw();
+   legend->Draw("same");
 
    hs->Write();
    c->Write();
+}
+
+void FillBEM(TH1D* h1_bem, DiMuonMass diMuAnalysis)
+{
+   if ((diMuAnalysis.getLeadingMuMotherPDG()!=0.)&&(diMuAnalysis.getLeadingMuMotherPDG() == diMuAnalysis.getLeadingMuBarMotherPDG()))
+   {
+      h1_bem->Fill(diMuAnalysis.getDiMuMass());
+      std::cout<<"BEM MASS = " << diMuAnalysis.getDiMuMass() << std::endl;
+   }
 }
 
 int main(int argc, char* argv[]) 
@@ -133,14 +143,13 @@ int main(int argc, char* argv[])
 
    // Create file on which histogram(s) can be saved.
    TString outname = "out" + TString(argv[1]) + ".root";
-   TFile *outFile = new TFile(outname, "RECREATE");   
 
    Pythia pythia;
    pythia.readFile("DarkPhotons/pythiaSettings.cmnd");
-   // pythia.readFile("DarkPhotons/ALICE_settings.cmnd");
+   // pythia.readFile("DarkPhotons/JPsi_only.cmnd");
    pythia.readString("Random:seed = " + std::to_string(seed));
    pythia.init();
-   int nEvents =20000;
+   int nEvents =10000;
 
    std::map<int,std::string> pdgParticle;
    pdgParticle[443] = "J/#Psi";
@@ -165,25 +174,59 @@ int main(int argc, char* argv[])
    pdgParticle[333] = "#phi(1020)";
    pdgParticle[130] = "K_{S}^{0}";
 
-   // Histograms
-   // pt eta phase space 
-   TH2D* h2_MuPtEta_all = new TH2D("h2_MuPtEta_all", "#mu^{#pm}: p_{T} / #eta Phase space", 100,0.,10., 14,-7.,7.);
-   TH2D* h2_MuPtEta_t1 = new TH2D("h2_MuPtEta_t1", "#mu^{#pm}: p_{T} / #eta Phase space", 100,0.,10., 14,-7.,7.);
+   // eta phase space
+   // we use these to help understand why LHCb might get more data because of the rapidity range
+   int nbinseta = 20;
+   double xetalow = 0;
+   double xetaup = 10;
+   TH1D* h1_leadMuEta_0_0p8 = new TH1D("h1_leadMuEta_0_0p8", " 0.0 #geq m < 0.8 GeV", nbinseta, xetalow, xetaup);
+   TH1D* h1_leadMuEta_0p8_2 = new TH1D("h1_leadMuEta_0p8_2", " 0.8 #geq m < 2 GeV", nbinseta, xetalow, xetaup);
+   TH1D* h1_leadMuEta_2_10 = new TH1D("h1_leadMuEta_2_10", " 2 #geq m < 10 GeV", nbinseta, xetalow, xetaup);
 
-   int nbins = 99;
-   double xmin = 0.1;
-   double xmax = 10.;
+   // want a delta R plot to see how it changes with mass
+   TH1D* h2_deltaR_Mass = new TH1D("h2_deltaR_Mass", "#Delta R of leading #mu^{#pm} OS",40,0,4);
 
    // DiMuonMass
-   TH1D* h1_DiMuMass_all = new TH1D("h1_DiMuMass_all", "M_{#mu#mu}",nbins,xmin,xmax);
-   TH1D* h1_DiMuMass_CMS_eta2p4 = new TH1D("h1_DiMuMass_CMS_eta24", "M_{#mu#mu}; |#eta|<2.4",nbins,xmin,xmax);
-   TH1D* h1_DiMuMass_CMS_eta1p5 = new TH1D("h1_DiMuMass_CMS_eta15", "M_{#mu#mu}; |#eta|<1.5",nbins,xmin,xmax);
-   TH1D* h1_DiMuMass_CMS_eta2p4_dR1p4 = new TH1D("h1_DiMuMass_CMS_eta24_dR1p4", "M_{#mu#mu}; |#eta|<2.4 & #Delta R < 1.4",nbins,xmin,xmax);
-   TH1D* h1_DiMuMass_CMS_eta1p5_dR1p4 = new TH1D("h1_DiMuMass_CMS_eta15_dR1p4", "M_{#mu#mu}; |#eta|<1.5 & #Delta R < 1.4",nbins,xmin,xmax);
-   TH1D* h1_DiMuMass_LHCb = new TH1D("h1_DiMuMass_LHCb", "M_{#mu#mu}; 2<|#eta|<4.5 & pT > 0.5",nbins,xmin,xmax);
-   TH1D* h1_DiMuMass_ALICE = new TH1D("h1_DiMuMass_ALICE", "M_{#mu#mu}; 2.5 <|#eta|<4 & 1 < p_{T} < 5",nbins,xmin,xmax);
+   int nbins = 1980; // 5 MeV bin width
+   double xmin = 0.1;
+   double xmax = 10.;
+   
+   TH1D* h1_DiMuMass_BEM_all = new TH1D("h1_DiMuMass_BEM_all", "p_{T}>3GeV",nbins,xmin,xmax);
+   // DiMuMass selects the leading mu and leading mubar and reconstructs it
+   TH1D* h1_DiMuMass_BEM_CMS_eta2p4 = new TH1D("h1_DiMuMass_BEM_CMS_eta2p4", "|#eta|<2.4, p_{T}>3GeV",nbins,xmin,xmax);
+   TH1D* h1_DiMuMass_BEM_CMS_eta1p5 = new TH1D("h1_DiMuMass_BEM_CMS_eta1p5", "|#eta|<1.5, p_{T}>3GeV",nbins,xmin,xmax);
+   TH1D* h1_DiMuMass_BEM_CMS_eta1p5_dR1p4 = new TH1D("h1_DiMuMass_BEM_CMS_eta1p5_dR1p4", "|#eta|<1.5, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4",nbins,xmin,xmax);
+   TH1D* h1_DiMuMass_BEM_CMS_eta2p4_dR1p4 = new TH1D("h1_DiMuMass_BEM_CMS_eta2p4_dR1p4", "|#eta|<2.4, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4",nbins,xmin,xmax);
+   // DiMu2LpTOS selects the 2 leading pT, if OS then computes mass. but also SS
+   // these should use the L1 triggers only
+   TH1D* h1_DiMu2LpTOSMass_BEM_all = new TH1D("h1_DiMu2LpTOSMass_BEM_all", "p_{T}>3GeV",nbins,xmin,xmax);
+   // first get BEM only
+   TH1D* h1_DiMu2LpTOSMass_BEM_CMS_eta2p4 = new TH1D("h1_DiMu2LpTOSMass_BEM_CMS_eta2p4", "|#eta|<2.4, p_{T}>3GeV",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_BEM_CMS_eta1p5 = new TH1D("h1_DiMu2LpTOSMass_BEM_CMS_eta1p5", "|#eta|<1.5, p_{T}>3GeV",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_BEM_CMS_eta1p5_dR1p4 = new TH1D("h1_DiMu2LpTOSMass_BEM_CMS_eta1p5_dR1p4", "|#eta|<1.5, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_BEM_CMS_eta2p4_dR1p4 = new TH1D("h1_DiMu2LpTOSMass_BEM_CMS_eta2p4_dR1p4", "|#eta|<2.4, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_BEM_CMS_eta1p5_dR1p2 = new TH1D("h1_DiMu2LpTOSMass_BEM_CMS_eta1p5_dR1p2", "|#eta|<1.5, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p2",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_BEM_CMS_eta2p4_dR1p2 = new TH1D("h1_DiMu2LpTOSMass_BEM_CMS_eta2p4_dR1p2", "|#eta|<2.4, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p2",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_BEM_LHCb = new TH1D("h1_DiMu2LpTOSMass_BEM_LHCb", "p_{T}(#mu^{#pm})>0.5GeV, 2<#eta(#mu^{#pm})<4.5, p(#mu^{#pm})>1GeV, p_{T}(A')>1GeV, 2<#eta(A')<4.5, p(A')>1GeV",nbins,xmin,xmax);
+   // We can also get the same sign distribution from the above set of analysis
+   TH1D* h1_DiMu2LpTOSMass_CMS_eta2p4_SS = new TH1D("h1_DiMu2LpTOSMass_CMS_eta2p4_SS", "|#eta|<2.4, p_{T}>3GeV",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_CMS_eta1p5_SS = new TH1D("h1_DiMu2LpTOSMass_CMS_eta1p5_SS", "|#eta|<1.5, p_{T}>3GeV",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_CMS_eta1p5_dR1p4_SS = new TH1D("h1_DiMu2LpTOSMass_CMS_eta1p5_dR1p4_SS", "|#eta|<1.5, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_CMS_eta2p4_dR1p4_SS = new TH1D("h1_DiMu2LpTOSMass_CMS_eta2p4_dR1p4_SS", "|#eta|<2.4, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_CMS_eta1p5_dR1p2_SS = new TH1D("h1_DiMu2LpTOSMass_CMS_eta1p5_dR1p2_SS", "|#eta|<1.5, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p2",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_CMS_eta2p4_dR1p2_SS = new TH1D("h1_DiMu2LpTOSMass_CMS_eta2p4_dR1p2_SS", "|#eta|<2.4, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p2",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_LHCb_SS = new TH1D("h1_DiMu2LpTOSMass_LHCb_SS", "p_{T}(#mu^{#pm})>0.5GeV, 2<#eta(#mu^{#pm})<4.5, p(#mu^{#pm})>1GeV, p_{T}(A')>1GeV, 2<#eta(A')<4.5, p(A')>1GeV",nbins,xmin,xmax);   
+   // We can also get the opp sign distribution but not necessairly BEM
+   TH1D* h1_DiMu2LpTOSMass_CMS_eta2p4 = new TH1D("h1_DiMu2LpTOSMass_CMS_eta2p4", "|#eta|<2.4, p_{T}>3GeV",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_CMS_eta1p5 = new TH1D("h1_DiMu2LpTOSMass_CMS_eta1p5", "|#eta|<1.5, p_{T}>3GeV",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_CMS_eta1p5_dR1p4 = new TH1D("h1_DiMu2LpTOSMass_CMS_eta1p5_dR1p4", "|#eta|<1.5, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_CMS_eta2p4_dR1p4 = new TH1D("h1_DiMu2LpTOSMass_CMS_eta2p4_dR1p4", "|#eta|<2.4, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_CMS_eta1p5_dR1p2 = new TH1D("h1_DiMu2LpTOSMass_CMS_eta1p5_dR1p2", "|#eta|<1.5, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p2",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_CMS_eta2p4_dR1p2 = new TH1D("h1_DiMu2LpTOSMass_CMS_eta2p4_dR1p2", "|#eta|<2.4, p_{T}>3GeV &  L1_DoubleMu0er1p5_SQ_OS_dR_Max1p2",nbins,xmin,xmax);
+   TH1D* h1_DiMu2LpTOSMass_LHCb = new TH1D("h1_DiMu2LpTOSMass_LHCb", "p_{T}(#mu^{#pm})>0.5GeV, 2<#eta(#mu^{#pm})<4.5, p(#mu^{#pm})>1GeV, p_{T}(A')>1GeV, 2<#eta(A')<4.5, p(A')>1GeV",nbins,xmin,xmax);   
 
-   // PDG Mothers
+
+   // PDG Mothers to identify BEM
    TH1D* h443    = new TH1D("443",    "M_{#mu#mu}("+TString(pdgParticle[443])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
    TH1D* h100443 = new TH1D("100443", "M_{#mu#mu}("+TString(pdgParticle[100443])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
    TH1D* h30443  = new TH1D("30443",  "M_{#mu#mu}("+TString(pdgParticle[30443])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
@@ -198,13 +241,8 @@ int main(int argc, char* argv[])
    TH1D* h331    = new TH1D("331",    "M_{#mu#mu}("+TString(pdgParticle[331])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
    TH1D* h223    = new TH1D("223",    "M_{#mu#mu}("+TString(pdgParticle[223])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
    TH1D* h333    = new TH1D("333",    "M_{#mu#mu}("+TString(pdgParticle[333])+"#rightarrow#mu#mu)", nbins,xmin,xmax);
-   TH1D* hDiffMother    = new TH1D("hDiffMother",    "M_{xy}#rightarrow#mu#mu)", nbins,xmin,xmax);
-   TH1D* hSameMotherExtra    = new TH1D("hSameMotherExtra",    "M_{xx}#rightarrow#mu#mu)", nbins,xmin,xmax);
 
    TH1D* hAll[14] = {h443,h100443,h30443,h553,h100553,h200553,h111,h130,h113,h213,h221,h331,h223,h333};
-
-   // Histogram for Mother PDG ID's
-   // TH2I* hAllMothers 
 
    h443->SetFillColor(kRed);        //   h443->Write();
    h100443->SetFillColor(kRed+1);   //   h100443->Write();
@@ -222,71 +260,135 @@ int main(int argc, char* argv[])
    h333->SetFillColor(kTeal+2);      //  h333->Write();
 
    // triggers
-   L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4 triggerHLTCMS_eta2p4(2.4);
-   L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4 triggerHLTCMS_eta1p5(1.5);
+   L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4 triggerL1_CMS_eta2p4_dR1p4(2.4);
+   L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4 triggerL1_CMS_eta1p5_dR1p4(1.5); // THIS IS THE MAIN ONE
+   L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4 triggerL1_CMS_eta2p4_dR1p2(2.4,1.2);
+   L1_DoubleMu0er1p5_SQ_OS_dR_Max1p4 triggerL1_CMS_eta1p5_dR1p2(1.5,1.2);
+   // think about if i want these triggers
    LeadingMu_OS_Good triggerCMS_eta2p4(0.,2.4,3.,0.);
    LeadingMu_OS_Good triggerCMS_eta1p5(0.,1.5,3.,0.);
    LeadingMu_OS_Good triggerLHCb(2.,4.5,0.5,0.); 
    LeadingMu_OS_Good triggerALICE(2.5,4.,1.,5.);
 
-   // Mass Analysis
-   // Note that the mass analysis does not use deltaR as a requirement.
-   DiMuonMass diMuMass_CMS_eta1p5(h1_DiMuMass_CMS_eta1p5,0.,1.5,3.,0.);
-   DiMuonMass diMuMass_CMS_eta2p4(h1_DiMuMass_CMS_eta2p4,0.,2.4,3.,0.);
-   DiMuonMass diMuMass_CMS_eta1p5_dR1p4(h1_DiMuMass_CMS_eta1p5_dR1p4,0.,1.5,3.,0.);
-   DiMuonMass diMuMass_CMS_eta2p4_dR1p4(h1_DiMuMass_CMS_eta2p4_dR1p4,0.,2.4,3.,0.);
-   DiMuonMass diMuMass_ALICE(h1_DiMuMass_ALICE,2.5,4.,1.,5.);
-   DiMuonMass diMuMass_LHCb(h1_DiMuMass_LHCb,2.,4.5,0.5,0.);
+   // pt eta Analysis
+   // MuonPtEta muonPtEta(h2_MuPtEta_all);
+   // LeadingMuonPtEta leadingMuonPtEta;
 
+
+   // Mass Analysis
+   // // DiMuMass selects the leading mu+ and leading mu- then reconstructs
+
+   // // DiMu2LpTOS selects the leading 2 muons, then asks if OS or SS
+   // DiMu2LpTOS diMu2LpTOSMass_CMS_eta2p4_eta1p5(0.0,2.4,3.0,0.0); // THIS IS A MAIN ONE
+   // DiMu2LpTOS diMu2LpTOSMass_CMS_eta2p4_eta2p4(0.0,2.4,3.0,0.0); // THIS IS A MAIN ONE
+   // DiMu2LpTOS diMu2LpTOSMass_CMS_eta2p4_L1eta1p5dR1p4(0.0,2.4,3.0,0.0); // THIS IS THE MAIN ONE
+   // DiMu2LpTOS diMu2LpTOSMass_CMS_eta2p4_L1eta1p5dR1p2(0.0,2.4,3.0,0.0); // THIS IS A MAIN ONE
+   // DiMu2LpTOS diMu2LpTOSMass_CMS_eta2p4_L1eta2p4dR1p4(0.0,2.4,3.0,0.0); // THIS IS A MAIN ONE
+   // DiMu2LpTOS diMu2LpTOSMass_CMS_eta2p4_L1eta2p4dR1p2(0.0,2.4,3.0,0.0); // THIS IS A MAIN ONE
+
+   // // Note that the mass analysis does not use deltaR as a requirement.
+   // DiMuonMass diMuMass_CMS_eta1p5(0.,1.5,3.,0.);
+   // DiMuonMass diMuMass_CMS_eta2p4(0.,2.4,3.,0.);
+   // DiMuonMass diMuMass_CMS_eta1p5_dR1p4(0.,1.5,3.,0.);
+   // DiMuonMass diMuMass_CMS_eta2p4_dR1p4(0.,2.4,3.,0.);
+   // DiMuonMass diMuMass_ALICE(2.5,4.,1.,5.);
+   // DiMuonMass diMuMass_LHCb(2.,4.5,0.5,0.);
+
+   //LHCB
+   // LHCbDiMuMass diMuMassLHCb(2., 5., 1.,20.); // see fig 7 of LHCb exp paper
+
+   // set up root file to store events
+   TFile *fileEvents = TFile::Open("events" + TString(argv[1]) + ".root","RECREATE");
+   Event *event = &pythia.event;
+   TTree *T = new TTree("T","ev1 Tree");
+   T->Branch("event",&event);
+
+   int nB_EM = 0;
+   int nSuccessfulEvents = 0;
    // Begin event loop. Generate event; skip if generation aborted.
    for (int iEvent = 0; iEvent < nEvents; ++iEvent) 
    {
       // Generate event. Skip if error
       if (!pythia.next()) {std::cout<<"Error in event generation" << std::endl; continue;} 
-      // std::cout<< "--- Event " << iEvent << std::endl;
-      // run the events through each analysis
-      // set to true to get all events
+      nSuccessfulEvents+=1;
+      // fill all events
+      T->Fill();
 
-      // mass
-      diMuMass_CMS_eta1p5.analyze(pythia.event,triggerCMS_eta1p5.fired(pythia.event));
-      diMuMass_CMS_eta2p4.analyze(pythia.event,triggerCMS_eta2p4.fired(pythia.event));
-      diMuMass_CMS_eta1p5_dR1p4.analyze(pythia.event,triggerHLTCMS_eta1p5.fired(pythia.event));
-      diMuMass_CMS_eta2p4_dR1p4.analyze(pythia.event,triggerHLTCMS_eta2p4.fired(pythia.event));
-      diMuMass_ALICE.analyze(pythia.event,triggerALICE.fired(pythia.event));
-      diMuMass_LHCb.analyze(pythia.event,triggerLHCb.fired(pythia.event));
+      // // run the events through each analysis
+      // // set to true to get all events
+      // // mass
+      // diMu2LpTOSMass_CMS_eta2p4_eta1p5.analyze(pythia.event,)
+
+      // diMuMass_CMS_eta1p5.analyze(pythia.event,triggerCMS_eta1p5.fired(pythia.event));
+      // diMuMass_CMS_eta2p4.analyze(pythia.event,triggerCMS_eta2p4.fired(pythia.event));
+      // diMuMass_CMS_eta1p5_dR1p4.analyze(pythia.event,triggerHLTCMS_eta1p5.fired(pythia.event));
+      // diMuMass_CMS_eta2p4_dR1p4.analyze(pythia.event,triggerHLTCMS_eta2p4.fired(pythia.event));
+
+      // diMuMass_LHCb.analyze(pythia.event,triggerLHCb.fired(pythia.event));
+      // diMuMassLHCb_1.analyze(pythia.event,true);
       
-      // Fill the histograms
-      h1_DiMuMass_CMS_eta1p5->Fill(diMuMass_CMS_eta1p5.getDiMuMass());
-      h1_DiMuMass_CMS_eta2p4->Fill(diMuMass_CMS_eta2p4.getDiMuMass());
-      h1_DiMuMass_CMS_eta1p5_dR1p4->Fill(diMuMass_CMS_eta1p5_dR1p4.getDiMuMass());
-      h1_DiMuMass_CMS_eta2p4_dR1p4->Fill(diMuMass_CMS_eta2p4_dR1p4.getDiMuMass());
-      h1_DiMuMass_LHCb->Fill(diMuMass_LHCb.getDiMuMass());
-      h1_DiMuMass_ALICE->Fill(diMuMass_ALICE.getDiMuMass());
+      // // pt eta
+      // muonPtEta.analyze(pythia.event,true);
+      // leadingMuonPtEta.analyze(pythia.event,true);
 
-      if (triggerHLTCMS_eta2p4.fired(pythia.event))
-      {
-         std::cout<<"fired HLT trigger" << std::endl;
-         std::cout<<"DiMuMass = " << diMuMass_CMS_eta2p4_dR1p4.getDiMuMass() << std::endl;
-         SortMothers(diMuMass_CMS_eta2p4_dR1p4, hAll, 14, hDiffMother ,hSameMotherExtra);
-      }      
+      // // Fill the histograms
+      // leadingMuonPtEta.Fill(h2_LeadingMuPtEta_all);
+
+      // diMuMass_CMS_eta1p5.fillMass(h1_DiMuMass_CMS_eta1p5);      
+      // diMuMass_CMS_eta2p4.fillMass(h1_DiMuMass_CMS_eta2p4);
+      // diMuMass_CMS_eta1p5_dR1p4.fillMass(h1_DiMuMass_CMS_eta1p5_dR1p4);
+      // diMuMass_CMS_eta2p4_dR1p4.fillMass(h1_DiMuMass_CMS_eta2p4_dR1p4);
+
+      // if (triggerHLTCMS_eta2p4.fired(pythia.event))
+      // {
+      //    std::cout<<"fired HLT trigger" << std::endl;
+      //    std::cout<<"DiMuMass = " << diMuMass_CMS_eta2p4_dR1p4.getDiMuMass() << std::endl;
+      //    SortMothers(diMuMass_CMS_eta2p4_dR1p4, hAll, 14, hDiffMother ,hSameMotherExtra);
+      // }      
+      // h1_DiMuMass_LHCb_1->Fill(diMuMassLHCb_1.getDiMuMass());
+      // if (diMuMassLHCb_1.getLeadingMuMotherPDG() == diMuMassLHCb_1.getLeadingMuBarMotherPDG())
+      // {
+      //    h1_BEM_LHCb->Fill(diMuMassLHCb_1.getDiMuMass());
+      //    nB_EM+=1;
+      // }
+      // FillBEM(h1_BEM_CMS,diMuMass_CMS_eta2p4_dR1p4);
+      // FillBEM(h1_BEM_LHCb,h1_DiMuMass_LHCb);
    }
 
-   OppSignSpectrum(hAll,14,hDiffMother,hSameMotherExtra);
+   T->Print();
+   T->Write();
+   delete fileEvents;
 
-   std::cout<<"L1 Trigger Efficiency = " << triggerHLTCMS_eta2p4.getEfficiency() << std::endl;
-   std::cout<<"N fired = "<< triggerHLTCMS_eta2p4.getNFired() << std::endl;
-   std::cout << "N Events = " << triggerHLTCMS_eta2p4.getNEvents() << std::endl;
-   std::cout<<"LHCb Trigger Efficiency = " << triggerLHCb.getEfficiency() << std::endl;
-   std::cout<<"ALICE Trigger Efficiency = " << triggerALICE.getEfficiency() << std::endl;
+   // OppSignSpectrum(hAll,14,hDiffMother,hSameMotherExtra);
+
+   // std::cout<<"L1 Trigger Efficiency = " << triggerHLTCMS_eta2p4.getEfficiency() << std::endl;
+   // std::cout<<"N fired = "<< triggerHLTCMS_eta2p4.getNFired() << std::endl;
+   // std::cout << "N Events = " << triggerHLTCMS_eta2p4.getNEvents() << std::endl;
+   // std::cout<<"LHCb Trigger Efficiency = " << triggerLHCb.getEfficiency() << std::endl;
+   // std::cout<<"ALICE Trigger Efficiency = " << triggerALICE.getEfficiency() << std::endl;
+
+   // TFile *outFile = new TFile(outname, "RECREATE");  
 
    // Fill the histograms
-   h1_DiMuMass_CMS_eta1p5->Write();
-   h1_DiMuMass_CMS_eta2p4->Write();
-   h1_DiMuMass_CMS_eta1p5_dR1p4->Write();
-   h1_DiMuMass_CMS_eta2p4_dR1p4->Write();
-   h1_DiMuMass_LHCb->Write();
-   h1_DiMuMass_ALICE->Write();
+   // h1_DiMuMass_CMS_eta1p5->Write();
+   // h1_DiMuMass_CMS_eta2p4->Write();
+   // h1_DiMuMass_CMS_eta1p5_dR1p4->Write();
+   // h1_DiMuMass_CMS_eta2p4_dR1p4->Write();
+   // h1_DiMuMass_LHCb->Write();
+   // h1_DiMuMass_ALICE->Write();
+   // h1_DiMuMass_LHCb_1->Write();
+   // h1_BEM_LHCb->Write();
+   // h2_MuPtEta_all->Write();
+   // h2_LeadingMuPtEta_all->Write();
+   // h1_BEM_CMS->Write();
+   // h1_BEM_LHCb->Write();
+   // delete outFile;
 
-   delete outFile;
+   // std::cout << "N B_EM = " << nB_EM << std::endl;
+   // std::cout << "N Signal = " << diMuMassLHCb_1.getNSignal() << std::endl;
+   // std::cout << "N Events generated = " << nEvents << std::endl;
+   
+   // std::cout << "Process summed estimated cross-section = " << pythia.info.sigmaGen()<< " mb" << std::endl; 
+   pythia.stat() ;
 }
 
