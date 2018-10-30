@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
    // pythia.readFile("DarkPhotons/JPsi_only.cmnd");
    pythia.readString("Random:seed = " + std::to_string(seed));
    pythia.init();
-   int nEvents =200000;
+   int nEvents =3000000;
 
    std::map<int,std::string> pdgParticle;
    pdgParticle[443] = "J/#Psi";
@@ -427,7 +427,8 @@ int main(int argc, char* argv[])
       diMu2LpTOSMass_CMS_eta2p4_eta1p5.fillBEMMass(h1_DiMu2LpTOSMass_BEM_CMS_eta1p5);
       diMu2LpTOSMass_CMS_eta2p4_eta2p4.fillBEMMass(h1_DiMu2LpTOSMass_BEM_CMS_eta2p4);
       diMu2LpTOSMass_CMS_eta2p4_L1eta1p5dR1p4.fillBEMMass(h1_DiMu2LpTOSMass_BEM_CMS_eta1p5_dR1p4);
-      diMu2LpTOSMass_CMS_eta2p4_L1eta1p5dR1p4.fillBEMMass(h1_DiMu2LpTOSMass_BEM_CMS_eta2p4_dR1p2_var);
+      diMu2LpTOSMass_CMS_eta2p4_L1eta2p4dR1p2.fillBEMMass(h1_DiMu2LpTOSMass_BEM_CMS_eta2p4_dR1p2_var);
+      // diMu2LpTOSMass_CMS_eta2p4_L1eta1p5dR1p4.fillBEMMass(h1_DiMu2LpTOSMass_BEM_CMS_eta2p4_dR1p2_var);
       diMu2LpTOSMass_CMS_eta2p4_L1eta1p5dR1p2.fillBEMMass(h1_DiMu2LpTOSMass_BEM_CMS_eta1p5_dR1p2);
       diMu2LpTOSMass_CMS_eta2p4_L1eta2p4dR1p4.fillBEMMass(h1_DiMu2LpTOSMass_BEM_CMS_eta2p4_dR1p4);
       diMu2LpTOSMass_CMS_eta2p4_L1eta2p4dR1p2.fillBEMMass(h1_DiMu2LpTOSMass_BEM_CMS_eta2p4_dR1p2);
